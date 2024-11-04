@@ -1,77 +1,28 @@
 <script lang="ts" module>
-  import ArrowDown from "lucide-svelte/icons/arrow-down";
-  import ArrowUp from "lucide-svelte/icons/arrow-up";
-  import Bell from "lucide-svelte/icons/bell";
-  import ChartLine from "lucide-svelte/icons/chart-line";
-  import Copy from "lucide-svelte/icons/copy";
-  import CornerUpLeft from "lucide-svelte/icons/corner-up-left";
-  import CornerUpRight from "lucide-svelte/icons/corner-up-right";
-  import FileText from "lucide-svelte/icons/file-text";
-  import GalleryVerticalEnd from "lucide-svelte/icons/gallery-vertical-end";
   import Link from "lucide-svelte/icons/link";
-  import Settings2 from "lucide-svelte/icons/settings-2";
   import Trash from "lucide-svelte/icons/trash";
-  import Trash2 from "lucide-svelte/icons/trash-2";
 
   const data = [
     [
       {
-        label: "Customize Page",
-        icon: Settings2,
-      },
-      {
-        label: "Turn into wiki",
-        icon: FileText,
+        label: "Add to favourites",
+        icon: Star,
       },
     ],
     [
+      {
+        label: "Share",
+        icon: ExternalLink,
+      },
       {
         label: "Copy Link",
         icon: Link,
       },
-      {
-        label: "Duplicate",
-        icon: Copy,
-      },
-      {
-        label: "Move to",
-        icon: CornerUpRight,
-      },
-      {
-        label: "Move to Trash",
-        icon: Trash2,
-      },
     ],
     [
       {
-        label: "Undo",
-        icon: CornerUpLeft,
-      },
-      {
-        label: "View analytics",
-        icon: ChartLine,
-      },
-      {
-        label: "Version History",
-        icon: GalleryVerticalEnd,
-      },
-      {
-        label: "Show delete pages",
+        label: "Delete",
         icon: Trash,
-      },
-      {
-        label: "Notifications",
-        icon: Bell,
-      },
-    ],
-    [
-      {
-        label: "Import",
-        icon: ArrowUp,
-      },
-      {
-        label: "Export",
-        icon: ArrowDown,
       },
     ],
   ];
@@ -81,17 +32,29 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Popover from "$lib/components/ui/popover/index.js";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
   import Ellipsis from "lucide-svelte/icons/ellipsis";
   import Star from "lucide-svelte/icons/star";
+  import { ExternalLink } from "lucide-svelte";
 
   let open = $state(false);
 </script>
 
 <div class="flex items-center gap-2 text-sm">
-  <div class="hidden font-medium text-muted-foreground md:inline-block">Edit Oct 08</div>
-  <Button variant="ghost" size="icon" class="h-7 w-7">
-    <Star />
-  </Button>
+  <div class="hidden font-medium text-muted-foreground md:inline-block">
+    Last message on 8th October
+  </div>
+  <Tooltip.Root>
+    <Tooltip.Trigger>
+      {#snippet child({ props })}
+        <Button {...props} variant="ghost" size="icon" class="h-7 w-7">
+          <Star />
+        </Button>
+      {/snippet}
+    </Tooltip.Trigger>
+    <Tooltip.Content>Add to favourites</Tooltip.Content>
+  </Tooltip.Root>
+
   <Popover.Root bind:open>
     <Popover.Trigger>
       {#snippet child({ props })}

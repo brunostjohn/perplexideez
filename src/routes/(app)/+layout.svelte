@@ -16,8 +16,10 @@
 
 <Sidebar.Provider>
   <AppSidebar />
-  <Sidebar.Inset>
-    <header class="flex h-14 shrink-0 items-center gap-2">
+  <Sidebar.Inset class="relative h-screen max-h-screen overflow-hidden">
+    <header
+      class="absolute left-0 top-0 flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-brightness-50 backdrop-saturate-150"
+    >
       <div class="flex flex-1 items-center gap-2 px-3">
         <Sidebar.Trigger />
         {#if $page.url.pathname.startsWith("/chat/")}
@@ -25,7 +27,7 @@
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item>
-                <Breadcrumb.Page class="line-clamp-1">
+                <Breadcrumb.Page class="line-clamp-1 text-muted-foreground">
                   Project Management & Task Tracking
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
@@ -39,7 +41,7 @@
         </div>
       {/if}
     </header>
-    <div class="flex flex-1 flex-col gap-4 px-4 py-10">
+    <div class="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 pb-10 pt-16">
       {@render children?.()}
     </div>
   </Sidebar.Inset>
