@@ -6,19 +6,33 @@
   import { Separator } from "$lib/components/ui/separator";
   import * as Sidebar from "$lib/components/ui/sidebar";
   import { page } from "$app/stores";
+  import type { LayoutServerData } from "./$types";
+  import { cn } from "$lib/utils";
 
   interface Props {
     children?: Snippet;
+    data: LayoutServerData;
   }
 
-  const { children }: Props = $props();
+  const { children, data }: Props = $props();
+
+  let scrollDiv = $state<HTMLDivElement>();
+  let isScrollDivScrolledToTop = $state(false);
+
+  const handleScroll = () => {
+    isScrollDivScrolledToTop = scrollDiv?.scrollTop === 0;
+    console.log(scrollDiv?.scrollTop);
+  };
 </script>
 
 <Sidebar.Provider>
-  <AppSidebar />
+  <AppSidebar user={data.user} />
   <Sidebar.Inset class="relative h-screen max-h-screen overflow-hidden">
     <header
-      class="absolute left-0 top-0 flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-brightness-50 backdrop-saturate-150"
+      class={cn(
+        "absolute left-0 top-0 flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-saturate-150",
+        isScrollDivScrolledToTop ? "" : "backdrop-brightness-50"
+      )}
     >
       <div class="flex flex-1 items-center gap-2 px-3">
         <Sidebar.Trigger />
@@ -41,7 +55,11 @@
         </div>
       {/if}
     </header>
-    <div class="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 pb-10 pt-16">
+    <div
+      class="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 pb-10 pt-16"
+      bind:this={scrollDiv}
+      onscroll={handleScroll}
+    >
       {@render children?.()}
     </div>
   </Sidebar.Inset>

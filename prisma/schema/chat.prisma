@@ -1,3 +1,42 @@
 model Chat {
-    id String @id @unique @default(cuid())
+    id        String    @id @unique @default(cuid())
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    title     String
+    emoji     String?
+    userId    String
+    focusMode FocusMode
+    modelType ModelType
+    user      User      @relation(fields: [userId], references: [id])
+    messages  Message[]
+}
+
+model Message {
+    id        String   @id @unique @default(cuid())
+    createdAt DateTime @default(now())
+    content   String
+    chatId    String
+    chat      Chat     @relation(fields: [chatId], references: [id])
+    role      ChatRole
+    metadata  Json?
+}
+
+enum ModelType {
+    Speed
+    Balanced
+    Quality
+}
+
+enum FocusMode {
+    All
+    Academic
+    Writing
+    WolframAlpha
+    Youtube
+    Reddit
+}
+
+enum ChatRole {
+    Assistant
+    User
 }
