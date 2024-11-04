@@ -1,17 +1,17 @@
 <script lang="ts">
+  import { page } from "$app/stores";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import * as Sidebar from "$lib/components/ui/sidebar/index.js";
   import { useSidebar } from "$lib/components/ui/sidebar/index.js";
   import ArrowUpRight from "lucide-svelte/icons/arrow-up-right";
   import Ellipsis from "lucide-svelte/icons/ellipsis";
   import Link from "lucide-svelte/icons/link";
-  import StarOff from "lucide-svelte/icons/star-off";
   import Trash2 from "lucide-svelte/icons/trash-2";
 
   let {
-    favorites,
+    chats,
   }: {
-    favorites: {
+    chats: {
       name: string;
       url: string;
       emoji: string;
@@ -24,9 +24,9 @@
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
   <Sidebar.GroupLabel>Searches</Sidebar.GroupLabel>
   <Sidebar.Menu>
-    {#each favorites as item (item.name)}
+    {#each chats as item (item.name)}
       <Sidebar.MenuItem>
-        <Sidebar.MenuButton>
+        <Sidebar.MenuButton isActive={$page.url.pathname.startsWith(item.url)}>
           {#snippet child({ props })}
             <a href={item.url} title={item.name} {...props}>
               <span>{item.emoji}</span>

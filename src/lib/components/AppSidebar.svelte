@@ -1,60 +1,54 @@
 <script lang="ts" module>
-  import Blocks from "lucide-svelte/icons/blocks";
-  import Calendar from "lucide-svelte/icons/calendar";
-  import MessageCircleQuestion from "lucide-svelte/icons/message-circle-question";
-  import Settings2 from "lucide-svelte/icons/settings-2";
-  import Trash2 from "lucide-svelte/icons/trash-2";
-
   const data = {
-    favorites: [
+    chats: [
       {
         name: "Project Management & Task Tracking",
-        url: "#",
+        url: "/chat/210398",
         emoji: "📊",
       },
       {
         name: "Family Recipe Collection & Meal Planning",
-        url: "#",
+        url: "/chat/1203948",
         emoji: "🍳",
       },
       {
         name: "Fitness Tracker & Workout Routines",
-        url: "#",
+        url: "/chat/1039483",
         emoji: "💪",
       },
       {
         name: "Book Notes & Reading List",
-        url: "#",
+        url: "/chat/24332",
         emoji: "📚",
       },
       {
         name: "Sustainable Gardening Tips & Plant Care",
-        url: "#",
+        url: "/chat/13094",
         emoji: "🌱",
       },
       {
         name: "Language Learning Progress & Resources",
-        url: "#",
+        url: "/chat/230948",
         emoji: "🗣️",
       },
       {
         name: "Home Renovation Ideas & Budget Tracker",
-        url: "#",
+        url: "/chat/1304",
         emoji: "🏠",
       },
       {
         name: "Personal Finance & Investment Portfolio",
-        url: "#",
+        url: "/chat/2304982",
         emoji: "💰",
       },
       {
         name: "Movie & TV Show Watchlist with Reviews",
-        url: "#",
+        url: "/chat/039842",
         emoji: "🎬",
       },
       {
         name: "Daily Habit Tracker & Goal Setting",
-        url: "#",
+        url: "/chat/309482",
         emoji: "✅",
       },
     ],
@@ -62,9 +56,9 @@
 </script>
 
 <script lang="ts">
-  import NavFavorites from "$lib/components/nav-favorites.svelte";
-  import NavMain from "$lib/components/nav-main.svelte";
-  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+  import NavChats from "$lib/components/NavChats.svelte";
+  import NavMain from "$lib/components/NavMain.svelte";
+  import * as Sidebar from "$lib/components/ui/sidebar";
   import type { ComponentProps } from "svelte";
   import UserMenu from "./UserMenu.svelte";
   import AppLogo from "./AppLogo.svelte";
@@ -78,7 +72,7 @@
     <NavMain />
   </Sidebar.Header>
   <Sidebar.Content>
-    <NavFavorites favorites={data.favorites} />
+    <NavChats chats={data.chats} />
   </Sidebar.Content>
   <Sidebar.Footer>
     <UserMenu />

@@ -8,3 +8,5 @@
   const { data }: Props = $props();
   const { id: chatId } = $derived(data);
 </script>
+
+<main class="h-full w-full"></main>
