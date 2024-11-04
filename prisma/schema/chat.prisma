@@ -1,0 +1,3 @@
+model Chat {
+    id String @id @unique @default(cuid())
+}
