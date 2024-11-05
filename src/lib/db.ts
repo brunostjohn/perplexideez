@@ -3,13 +3,10 @@ import { PrismaClient } from "@prisma/client";
 import type { createChatSchema } from "$lib/trpc/router";
 import * as Prisma from "@prisma/client";
 import type { z } from "zod";
-import Redis from "ioredis";
 
 export const db = new PrismaClient({
   datasourceUrl: env.DATABASE_URL,
 });
-
-export const redis = new Redis(env.REDIS_URL!);
 
 export const convertZodEnumToDbModel = (
   enumValue: z.infer<typeof createChatSchema>["modelType"]

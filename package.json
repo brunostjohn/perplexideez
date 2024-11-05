@@ -64,7 +64,6 @@
     "compute-cosine-similarity": "^1.1.0",
     "compute-dot": "^1.1.0",
     "html-to-text": "^9.0.5",
-    "ioredis": "^5.4.1",
     "langchain": "^0.3.5",
     "open-graph-scraper": "^6.8.2",
     "pdf-parse": "^1.1.1",
