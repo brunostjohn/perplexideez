@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "lint": "prettier --check .",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "dev:up": "docker compose -f compose.dev.yml up"
   },
   "devDependencies": {
     "@internationalized/date": "^3.5.6",
