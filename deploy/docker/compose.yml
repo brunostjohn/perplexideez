@@ -1,0 +1,31 @@
+include:
+  - ./db.yml
+  - ./searxng.yml
+  - ./ollama.yml
+
+services:
+  migrate_db:
+    image: ghcr.io/brunostjohn/perplexideez/migrate:latest
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  perplexideez:
+    image: ghcr.io/brunostjohn/perplexideez/app:latest
+    env_file: .env
+    healthcheck:
+      test: "curl http://localhost:3000/healthz || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      searxng:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    ports:
+      - 3000:3000

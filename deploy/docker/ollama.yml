@@ -1,0 +1,19 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    hostname: ollama
+    volumes:
+      - ollama-data:/root/.ollama
+    tty: true
+    restart: unless-stopped
+    healthcheck:
+      test: "ollama --version && ollama ps || exit 1"
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+
+volumes:
+  ollama-data:

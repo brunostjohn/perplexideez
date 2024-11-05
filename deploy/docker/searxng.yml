@@ -1,0 +1,50 @@
+services:
+  redis:
+    hostname: redis
+    image: docker.io/valkey/valkey:8-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: "[ $$(valkey-cli ping) = 'PONG' ]"
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    volumes:
+      - valkey-data:/data
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+
+  searxng:
+    hostname: searxng
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: "wget http://searxng:8080/healthz -q -O - | cat - || exit 1"
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    volumes:
+      - searxng-data:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://searxng:8080/
+      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
+      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+volumes:
+  valkey-data:
+  searxng-data:

@@ -1,0 +1,33 @@
+services:
+  init_db:
+    image: postgres:16-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    entrypoint:
+      - sh
+      - -c
+      - |
+        chown -R 2000:2000 /var/lib/postgresql/data
+
+  postgres:
+    image: postgres:16-alpine
+    depends_on:
+      init_db:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -d postgres -U postgres -h localhost"
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 20s
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    user: "2000"
+
+volumes:
+  pgdata:
