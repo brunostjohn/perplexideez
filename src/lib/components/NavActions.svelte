@@ -1,41 +1,9 @@
-<script lang="ts" module>
-  import Link from "lucide-svelte/icons/link";
-  import Trash from "lucide-svelte/icons/trash";
-
-  const data = [
-    [
-      {
-        label: "Add to favourites",
-        icon: Star,
-      },
-    ],
-    [
-      {
-        label: "Share",
-        icon: ExternalLink,
-      },
-      {
-        label: "Copy Link",
-        icon: Link,
-      },
-    ],
-    [
-      {
-        label: "Delete",
-        icon: Trash,
-      },
-    ],
-  ];
-</script>
-
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button/index.js";
-  import * as Popover from "$lib/components/ui/popover/index.js";
-  import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-  import * as Tooltip from "$lib/components/ui/tooltip/index.js";
-  import Ellipsis from "lucide-svelte/icons/ellipsis";
-  import Star from "lucide-svelte/icons/star";
-  import { ExternalLink } from "lucide-svelte";
+  import { Button } from "$lib/components/ui/button";
+  import * as Popover from "$lib/components/ui/popover";
+  import * as Sidebar from "$lib/components/ui/sidebar";
+  import * as Tooltip from "$lib/components/ui/tooltip";
+  import { ExternalLink, Ellipsis, Star, Link, Trash } from "lucide-svelte";
 
   let open = $state(false);
 </script>
@@ -66,21 +34,44 @@
     <Popover.Content class="w-56 overflow-hidden rounded-lg p-0" align="end">
       <Sidebar.Root collapsible="none" class="bg-transparent">
         <Sidebar.Content>
-          {#each data as group, index (index)}
-            <Sidebar.Group class="border-b last:border-none">
-              <Sidebar.GroupContent class="gap-0">
-                <Sidebar.Menu>
-                  {#each group as item, index (index)}
-                    <Sidebar.MenuItem>
-                      <Sidebar.MenuButton>
-                        <item.icon /> <span>{item.label}</span>
-                      </Sidebar.MenuButton>
-                    </Sidebar.MenuItem>
-                  {/each}
-                </Sidebar.Menu>
-              </Sidebar.GroupContent>
-            </Sidebar.Group>
-          {/each}
+          <Sidebar.Group class="border-b last:border-none">
+            <Sidebar.GroupContent class="gap-0">
+              <Sidebar.Menu>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton>
+                    <Star /> <span>Add to favourites</span>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+          <Sidebar.Group class="border-b last:border-none">
+            <Sidebar.GroupContent class="gap-0">
+              <Sidebar.Menu>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton>
+                    <ExternalLink /> <span>Share</span>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton>
+                    <Link /> <span>Copy Link</span>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+          <Sidebar.Group class="border-b last:border-none">
+            <Sidebar.GroupContent class="gap-0">
+              <Sidebar.Menu>
+                <Sidebar.MenuItem>
+                  <Sidebar.MenuButton>
+                    <Trash /> <span>Delete</span>
+                  </Sidebar.MenuButton>
+                </Sidebar.MenuItem>
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
         </Sidebar.Content>
       </Sidebar.Root>
     </Popover.Content>

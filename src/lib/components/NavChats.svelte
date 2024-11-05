@@ -22,7 +22,7 @@
         <Sidebar.MenuItem>
           <Sidebar.MenuButton isActive={$page.url.pathname.startsWith(`/chat/${item.id}`)}>
             {#snippet child({ props })}
-              <a href={`/chats/${item.id}`} title={item.title} {...props}>
+              <a href={`/chat/${item.id}`} title={item.title} {...props}>
                 {#if item.emoji}
                   <span>{item.emoji}</span>
                 {/if}

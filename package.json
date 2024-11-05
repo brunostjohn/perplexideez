@@ -22,6 +22,8 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/svelte-query": "^5.59.17",
     "@trpc/client": "^10.45.2",
+    "@types/html-to-text": "^9.0.4",
+    "@types/pdf-parse": "^1.1.4",
     "autoprefixer": "^10.4.20",
     "bits-ui": "1.0.0-next.40",
     "clsx": "^2.1.1",
@@ -53,8 +55,19 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
     "@auth/sveltekit": "^1.7.3",
+    "@langchain/core": "^0.3.17",
+    "@langchain/ollama": "^0.1.1",
+    "@langchain/openai": "^0.3.11",
     "@prisma/client": "^5.21.1",
     "@trpc/server": "^10.45.2",
+    "compute-cosine-similarity": "^1.1.0",
+    "compute-dot": "^1.1.0",
+    "html-to-text": "^9.0.5",
+    "ioredis": "^5.4.1",
+    "langchain": "^0.3.5",
+    "open-graph-scraper": "^6.8.2",
+    "pdf-parse": "^1.1.1",
+    "svelte-markdown": "^0.4.1",
     "trpc-sveltekit": "^3.6.2"
   }
 }

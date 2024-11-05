@@ -7,7 +7,6 @@ export async function createContext(event: RequestEvent) {
   } = event;
 
   const session = await auth();
-  console.log(session?.user);
 
   if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
   if (!session.user) throw new TRPCError({ code: "FORBIDDEN" });

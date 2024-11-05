@@ -14,11 +14,24 @@ model Chat {
 model Message {
     id        String   @id @unique @default(cuid())
     createdAt DateTime @default(now())
-    content   String
+    pending   Boolean?
+    content   String?
     chatId    String
     chat      Chat     @relation(fields: [chatId], references: [id])
     role      ChatRole
+    sources   Source[]
     metadata  Json?
+}
+
+model Source {
+    id            String   @id @unique @default(cuid())
+    accessedAt    DateTime @default(now())
+    url           String
+    title         String
+    pageContent   String
+    messageId     String
+    message       Message  @relation(fields: [messageId], references: [id])
+    originalIndex Int
 }
 
 enum ModelType {

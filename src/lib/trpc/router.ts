@@ -1,9 +1,10 @@
-import { db } from "$lib/db";
-import { t } from "$lib/trpc/t";
+import { convertZodEnumToDbFocusMode, convertZodEnumToDbModel, db } from "$lib/db";
 import * as Prisma from "@prisma/client";
+import { t } from "$lib/trpc/t";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
-const createChatSchema = z.object({
+export const createChatSchema = z.object({
   query: z.string().min(1, "You must provide a query."),
   focusMode: z.enum(["all", "academic", "writing", "wolframalpha", "youtube", "reddit"]),
   modelType: z.enum(["speed", "balanced", "quality"]),
@@ -30,6 +31,12 @@ export const router = t.router({
           user: {
             connect: {
               id,
+            },
+          },
+          messages: {
+            create: {
+              content: query,
+              role: Prisma.ChatRole.User,
             },
           },
         },
@@ -61,40 +68,67 @@ export const router = t.router({
       return chats;
     }
   ),
+  sources: t.procedure.input(z.object({ messageIds: z.array(z.string()) })).query(
+    async ({
+      input: { messageIds },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const messages = await db.message.findMany({
+        where: {
+          id: {
+            in: messageIds,
+          },
+          chat: {
+            userId: id,
+          },
+        },
+        select: { id: true, sources: true },
+      });
+
+      const messageEntries = messages.map(({ id, sources }) => [id, sources] as const);
+
+      return Object.fromEntries(messageEntries);
+    }
+  ),
+  chat: t.procedure.input(z.object({ chatId: z.string() })).query(
+    async ({
+      input: { chatId },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+        include: {
+          messages: {
+            where: {
+              OR: [
+                {
+                  pending: false,
+                },
+                {
+                  pending: null,
+                },
+              ],
+            },
+          },
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return chat;
+    }
+  ),
 });
 
 export const createCaller = t.createCallerFactory(router);
 
 export type Router = typeof router;
-
-const convertZodEnumToDbModel = (enumValue: z.infer<typeof createChatSchema>["modelType"]) => {
-  switch (enumValue) {
-    case "speed":
-      return Prisma.ModelType.Speed;
-    case "balanced":
-      return Prisma.ModelType.Balanced;
-    case "quality":
-      return Prisma.ModelType.Quality;
-  }
-
-  throw new Error("Invalid model type");
-};
-
-const convertZodEnumToDbFocusMode = (enumValue: z.infer<typeof createChatSchema>["focusMode"]) => {
-  switch (enumValue) {
-    case "all":
-      return Prisma.FocusMode.All;
-    case "academic":
-      return Prisma.FocusMode.Academic;
-    case "writing":
-      return Prisma.FocusMode.Writing;
-    case "wolframalpha":
-      return Prisma.FocusMode.WolframAlpha;
-    case "youtube":
-      return Prisma.FocusMode.Youtube;
-    case "reddit":
-      return Prisma.FocusMode.Reddit;
-  }
-
-  throw new Error("Invalid focus mode");
-};
