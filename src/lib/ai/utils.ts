@@ -1,7 +1,7 @@
 // @ts-expect-error - no types
 import dot from "compute-dot";
 import cosineSimilarity from "compute-cosine-similarity";
-import { BaseMessage } from "@langchain/core/messages";
+import type { BaseMessage } from "@langchain/core/messages";
 import { env } from "$env/dynamic/private";
 
 export const computeSimilarity = (x: number[], y: number[]) => {
