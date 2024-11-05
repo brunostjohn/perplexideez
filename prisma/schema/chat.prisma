@@ -30,6 +30,8 @@ model Source {
     title         String
     pageContent   String
     messageId     String
+    imageUrl      String?
+    faviconUrl    String?
     message       Message  @relation(fields: [messageId], references: [id])
     originalIndex Int
 }

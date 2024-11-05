@@ -7,6 +7,7 @@ export const load: LayoutLoad = async () => {
     defaultOptions: {
       queries: {
         enabled: browser,
+        experimental_prefetchInRender: true,
       },
     },
   });

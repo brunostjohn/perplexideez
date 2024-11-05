@@ -21,7 +21,6 @@
 
   const handleScroll = () => {
     isScrollDivScrolledToTop = scrollDiv?.scrollTop === 0;
-    console.log(scrollDiv?.scrollTop);
   };
 </script>
 

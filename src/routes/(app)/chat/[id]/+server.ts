@@ -60,9 +60,9 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
         controller.enqueue(JSON.stringify(data));
         if (data.type === "response") fullMessage += data.data;
         if (data.type === "sources") {
-          handleSources(data, newMessage.id).then(() =>
-            controller.enqueue(JSON.stringify({ type: "doneSources", data: "" }))
-          );
+          handleSources(data, newMessage.id)
+            .then(() => controller.enqueue(JSON.stringify({ type: "doneSources", data: "" })))
+            .catch(console.error);
         }
       });
       events.on("error", (error) => {
@@ -95,13 +95,49 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
 };
 
 const handleSources = async ({ data: sources }: Sources, messageId: string) => {
-  const sourcesNormalised = sources.map(({ pageContent, metadata: { title, url } }, i) => ({
-    pageContent,
-    title,
-    url,
-    messageId,
-    originalIndex: i,
-  }));
+  const sourcesNormalised = await Promise.all(
+    sources.map(async ({ pageContent, metadata: { title, url } }, i) => {
+      try {
+        const ogData = await ogs({
+          url,
+        });
+
+        if (!ogData.result.success) {
+          return {
+            pageContent,
+            title,
+            url,
+            messageId,
+            originalIndex: i,
+          };
+        }
+
+        let imageUrl = ogData.result.ogImage?.filter((image) => image.url)[0]?.url;
+        if (imageUrl?.startsWith("/")) imageUrl = new URL(url).origin + imageUrl;
+        const faviconUrl = `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(
+          url
+        )}&size=256`;
+
+        return {
+          pageContent,
+          title,
+          url,
+          messageId,
+          originalIndex: i,
+          imageUrl,
+          faviconUrl,
+        };
+      } catch {
+        return {
+          pageContent,
+          title,
+          url,
+          messageId,
+          originalIndex: i,
+        };
+      }
+    })
+  );
 
   await db.source.createMany({
     data: sourcesNormalised,

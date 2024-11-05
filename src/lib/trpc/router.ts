@@ -105,18 +105,7 @@ export const router = t.router({
           userId: id,
         },
         include: {
-          messages: {
-            where: {
-              OR: [
-                {
-                  pending: false,
-                },
-                {
-                  pending: null,
-                },
-              ],
-            },
-          },
+          messages: { include: { sources: true } },
         },
       });
 

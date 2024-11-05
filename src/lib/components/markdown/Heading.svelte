@@ -10,8 +10,8 @@
 
   const { depth, raw, text, children }: Props = $props();
 
-  const { slug, getOptions } = getContext({});
-  const options = getOptions();
+  const { slug, getOptions } = getContext({}) ?? {};
+  const options = getOptions?.() ?? {};
 
   const id = $derived(options.headerIds ? options.headerPrefix + slug(text) : undefined);
 </script>
