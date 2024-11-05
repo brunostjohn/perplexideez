@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v6.8.0
         with:
           platforms: linux/amd64,linux/arm64
-          dockerfile: deploy/db-migrate.Dockerfile
+          file: deploy/db-migrate.Dockerfile
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -74,7 +74,7 @@ jobs:
         uses: docker/build-push-action@v6.8.0
         with:
           platforms: linux/amd64,linux/arm64
-          dockerfile: deploy/app.Dockerfile
+          file: deploy/app.Dockerfile
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
