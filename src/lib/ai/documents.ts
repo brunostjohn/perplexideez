@@ -1,7 +1,8 @@
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
 import { htmlToText } from "html-to-text";
-import pdfParse from "pdf-parse";
+// @ts-expect-error - keep hating
+import * as parser from "pdf-parse/lib/pdf-parse.js";
 
 export const fetchDocumentsFromLinks = async (links: string[]) => {
   const splitter = new RecursiveCharacterTextSplitter();
@@ -70,7 +71,7 @@ const parseAndHandlePDF = async (
   link: string,
   splitter: RecursiveCharacterTextSplitter
 ) => {
-  const pdfText = await pdfParse(buffer);
+  const pdfText = await parser.default(buffer);
   const parsedText = pdfText.text
     .replace(/(\r\n|\n|\r)/gm, " ")
     .replace(/\s+/g, " ")
