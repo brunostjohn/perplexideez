@@ -10,56 +10,83 @@
   } from ".";
   import { LLMMarkdownRenderer } from "..";
   import { Separator } from "../ui/separator";
+  import { useStreamedResponse } from "./hooks.svelte";
 
   interface Source {
     imageUrl?: string | null;
     faviconUrl?: string | null;
     title: string;
     url: string;
+    originalIndex: number;
   }
 
   interface MessagePair {
     humanQuery: {
       content: string;
+      role: "User";
     };
     aiResponse?: {
       content?: string | null;
       pending: boolean;
       id: string;
       sources: Source[];
+      role: "Assistant";
+      suggestions: string[];
     };
   }
 
   interface Props {
     messagePair: MessagePair;
+    chatId: string;
+    isLoading: boolean;
   }
 
-  const { messagePair }: Props = $props();
+  const { messagePair, chatId, isLoading }: Props = $props();
+
+  let streamedOnce = $state(false);
+
+  const streamedResponse = useStreamedResponse({
+    chatId,
+    lastMessage: messagePair.aiResponse ?? messagePair.humanQuery,
+    onStreamed: () => {
+      streamedOnce = true;
+    },
+    enableStreaming: () => !streamedOnce,
+  });
 </script>
 
 <div class="flex h-full gap-8">
   <div class="h-full w-[70%] pb-10">
     <h1 class="mb-6 text-4xl font-bold">{messagePair.humanQuery.content}</h1>
 
-    {#if messagePair.aiResponse}
-      <MessageSectionTitle icon={BookCopy}>Sources</MessageSectionTitle>
-      <Sources sources={messagePair.aiResponse.sources} />
+    {#if messagePair.aiResponse || streamedResponse.isStreaming}
+      <Sources
+        isStreaming={streamedResponse.isStreaming}
+        sources={messagePair.aiResponse?.sources}
+      />
 
-      <MessageSectionTitle icon={MessageCircleQuestion}>Answer</MessageSectionTitle>
-      <div class="flex flex-col gap-2 pr-10">
+      {#if messagePair.aiResponse?.sources !== undefined}
         <LLMMarkdownRenderer
-          source={(messagePair.aiResponse.isStreaming && messagePair.aiResponse.pending
-            ? messagePair.aiResponse.streamedContent
-            : messagePair.aiResponse.content) ?? ""}
+          isStreaming={streamedResponse.isStreaming}
+          usedSources={messagePair.aiResponse?.sources}
+          source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
+            ? streamedResponse.streamedContent
+            : messagePair.aiResponse?.content) ?? ""}
         />
-      </div>
-      <MessageAccessories />
+      {/if}
 
-      <MessageSectionTitle icon={MessageCircleQuestion}>Follow Up</MessageSectionTitle>
-      <FollowUpQuestions />
-      <div class="mt-8 pb-10 pr-10">
-        <NewMessageBox />
-      </div>
+      {#if !streamedResponse.isStreaming && messagePair.aiResponse}
+        <MessageAccessories
+          content={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
+            ? streamedResponse.streamedContent
+            : messagePair.aiResponse?.content) ?? ""}
+        />
+
+        <FollowUpQuestions suggestions={messagePair.aiResponse.suggestions} />
+        <div class="mt-8 pb-10 pr-10">
+          <NewMessageBox />
+        </div>
+      {/if}
     {/if}
   </div>
   <Separator orientation="vertical" class="mt-12 h-[32rem] max-h-[32rem] !min-h-[auto]" />

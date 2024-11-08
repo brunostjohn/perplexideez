@@ -1,26 +1,53 @@
 model Chat {
-    id        String    @id @unique @default(cuid())
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
-    title     String
-    emoji     String?
-    userId    String
-    focusMode FocusMode
-    modelType ModelType
-    user      User      @relation(fields: [userId], references: [id])
-    messages  Message[]
+    id         String    @id @unique @default(cuid())
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    title      String
+    emoji      String?
+    userId     String
+    isFavorite Boolean   @default(false)
+    focusMode  FocusMode
+    modelType  ModelType
+    user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    messages   Message[]
 }
 
 model Message {
-    id        String   @id @unique @default(cuid())
-    createdAt DateTime @default(now())
-    pending   Boolean?
-    content   String?
-    chatId    String
-    chat      Chat     @relation(fields: [chatId], references: [id])
-    role      ChatRole
-    sources   Source[]
-    metadata  Json?
+    id           String        @id @unique @default(cuid())
+    createdAt    DateTime      @default(now())
+    pending      Boolean?
+    content      String?
+    chatId       String
+    chat         Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    role         ChatRole
+    sources      Source[]
+    suggestions  String[]
+    imageResults ImageResult[]
+    videoResults VideoResult[]
+    metadata     Json?
+}
+
+model ImageResult {
+    id           String  @id @unique @default(cuid())
+    title        String
+    url          String
+    thumbnailUrl String
+    imageUrl     String
+    content      String
+    messageId    String
+    message      Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model VideoResult {
+    id           String  @id @unique @default(cuid())
+    title        String
+    url          String
+    iframeSrc    String
+    thumbnailUrl String
+    length       String?
+    views        String?
+    messageId    String
+    message      Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 
 model Source {
@@ -32,7 +59,7 @@ model Source {
     messageId     String
     imageUrl      String?
     faviconUrl    String?
-    message       Message  @relation(fields: [messageId], references: [id])
+    message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
     originalIndex Int
 }
 

@@ -19,3 +19,4 @@ export { default as Html } from "./Html.svelte";
 export { default as Blockquote } from "./Blockquote.svelte";
 export { default as Code } from "./Code.svelte";
 export { default as Br } from "./Br.svelte";
+export { default as Source } from "./Source.svelte";

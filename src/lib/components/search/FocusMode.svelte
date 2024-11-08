@@ -19,36 +19,36 @@
       icon: Earth,
       value: "all",
     },
-    {
-      name: "Academic",
-      description: "Searches in published academic papers.",
-      icon: GraduationCap,
-      value: "academic",
-    },
-    {
-      name: "Writing",
-      description: "Chat without searching the web.",
-      value: "writing",
-      icon: MessageCircle,
-    },
-    {
-      name: "Woflram Alpha",
-      description: "Computational knowledge engine.",
-      value: "wolframalpha",
-      icon: BadgePercent,
-    },
-    {
-      name: "Youtube",
-      description: "Search and watch videos.",
-      value: "youtube",
-      icon: Youtube,
-    },
-    {
-      name: "Reddit",
-      description: "Search for discussions and opinions.",
-      value: "reddit",
-      icon: MessageSquareMore,
-    },
+    // {
+    //   name: "Academic",
+    //   description: "Searches in published academic papers.",
+    //   icon: GraduationCap,
+    //   value: "academic",
+    // },
+    // {
+    //   name: "Writing",
+    //   description: "Chat without searching the web.",
+    //   value: "writing",
+    //   icon: MessageCircle,
+    // },
+    // {
+    //   name: "Woflram Alpha",
+    //   description: "Computational knowledge engine.",
+    //   value: "wolframalpha",
+    //   icon: BadgePercent,
+    // },
+    // {
+    //   name: "Youtube",
+    //   description: "Search and watch videos.",
+    //   value: "youtube",
+    //   icon: Youtube,
+    // },
+    // {
+    //   name: "Reddit",
+    //   description: "Search for discussions and opinions.",
+    //   value: "reddit",
+    //   icon: MessageSquareMore,
+    // },
   ];
 
   interface Props {
@@ -112,5 +112,18 @@
     {#each focusOptions as option}
       {@render focusOption(option as unknown as any)}
     {/each}
+    <div
+      class={cn(
+        "group flex h-full w-full max-w-[170px] flex-col overflow-hidden rounded-md p-3 !outline-none !ring-0 !ring-transparent transition-all"
+      )}
+    >
+      <div class={cn("align-center mb-2 flex items-center gap-2")}>
+        <!-- <Icon class="aspect-square size-6 min-h-6 min-w-6" /> -->
+        <p class="text-base font-semibold">Coming soon...</p>
+      </div>
+      <p class="text-left text-xs text-muted-foreground">
+        We are working on adding more search options.
+      </p>
+    </div>
   </Popover.Content>
 </Popover.Root>

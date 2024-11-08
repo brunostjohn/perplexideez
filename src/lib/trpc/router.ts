@@ -116,6 +116,118 @@ export const router = t.router({
       return chat;
     }
   ),
+  yeetChat: t.procedure.input(z.object({ chatId: z.string() })).mutation(
+    async ({
+      input: { chatId },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      await db.chat.delete({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+      });
+    }
+  ),
+  chatName: t.procedure.input(z.object({ chatId: z.string() })).query(
+    async ({
+      input: { chatId },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+        select: {
+          title: true,
+          emoji: true,
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return chat;
+    }
+  ),
+  chatLastUpdated: t.procedure.input(z.object({ chatId: z.string() })).query(
+    async ({
+      input: { chatId },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+        select: {
+          messages: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return chat.messages[0].createdAt;
+    }
+  ),
+  chatFavourite: t.procedure.input(z.object({ chatId: z.string() })).query(
+    async ({
+      input: { chatId },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+        select: {
+          isFavorite: true,
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      return chat.isFavorite;
+    }
+  ),
+  chatSetFavourite: t.procedure
+    .input(z.object({ chatId: z.string(), isFavorite: z.boolean() }))
+    .mutation(
+      async ({
+        input: { chatId, isFavorite },
+        ctx: {
+          user: { id },
+        },
+      }) => {
+        await db.chat.update({
+          where: {
+            id: chatId,
+            userId: id,
+          },
+          data: {
+            isFavorite,
+          },
+        });
+      }
+    ),
 });
 
 export const createCaller = t.createCallerFactory(router);

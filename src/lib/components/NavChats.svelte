@@ -8,10 +8,21 @@
   import Ellipsis from "lucide-svelte/icons/ellipsis";
   import Link from "lucide-svelte/icons/link";
   import Trash2 from "lucide-svelte/icons/trash-2";
+  import { DeleteChat } from "./chatActions";
+  import { toast } from "svelte-sonner";
+  import { LoaderCircle } from "lucide-svelte";
 
   const chatsQuery = trpc()?.listChats.createQuery();
 
   const sidebar = useSidebar();
+
+  let copyingLink = $state(false);
+  const handleCopyLink = async (chatId: string) => {
+    copyingLink = true;
+    await navigator.clipboard.writeText(`${window.location.origin}/chat/${chatId}`);
+    copyingLink = false;
+    toast.success("Link copied to clipboard.");
+  };
 </script>
 
 <Sidebar.Group class="group-data-[collapsible=icon]:hidden">
@@ -44,19 +55,28 @@
               side={sidebar.isMobile ? "bottom" : "right"}
               align={sidebar.isMobile ? "end" : "start"}
             >
-              <DropdownMenu.Item>
-                <Link class="text-muted-foreground" />
-                <span>Copy Link</span>
+              <DropdownMenu.Item onclick={() => handleCopyLink(item.id)} disabled={copyingLink}>
+                {#if copyingLink}
+                  <LoaderCircle class="animate-spin text-muted-foreground" />
+                  <span>Copying Link...</span>
+                {:else}
+                  <Link class="text-muted-foreground" />
+                  <span>Copy Link</span>
+                {/if}
               </DropdownMenu.Item>
-              <DropdownMenu.Item>
+              <DropdownMenu.Item onclick={() => window.open(`/chat/${item.id}`, "_blank")}>
                 <ArrowUpRight class="text-muted-foreground" />
                 <span>Open in New Tab</span>
               </DropdownMenu.Item>
               <DropdownMenu.Separator />
-              <DropdownMenu.Item>
-                <Trash2 class="text-muted-foreground" />
-                <span>Delete</span>
-              </DropdownMenu.Item>
+              <DeleteChat chatId={item.id}>
+                {#snippet child({ props })}
+                  <DropdownMenu.Item {...props}>
+                    <Trash2 class="text-muted-foreground" />
+                    <span>Delete</span>
+                  </DropdownMenu.Item>
+                {/snippet}
+              </DeleteChat>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Sidebar.MenuItem>

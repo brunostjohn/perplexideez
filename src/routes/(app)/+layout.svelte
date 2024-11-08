@@ -8,6 +8,8 @@
   import { page } from "$app/stores";
   import type { LayoutServerData } from "./$types";
   import { cn } from "$lib/utils";
+  import { trpc } from "$lib/trpc";
+  import { reactiveQueryArgs } from "$lib/utils.svelte";
 
   interface Props {
     children?: Snippet;
@@ -19,9 +21,21 @@
   let scrollDiv = $state<HTMLDivElement>();
   let isScrollDivScrolledToTop = $state(false);
 
+  $effect(() => {
+    if ($page.url.pathname === "/") isScrollDivScrolledToTop = true;
+  });
+
   const handleScroll = () => {
     isScrollDivScrolledToTop = scrollDiv?.scrollTop === 0;
   };
+
+  const isChatPage = $derived($page.url.pathname.startsWith("/chat/"));
+  const chatId = $derived(isChatPage ? $page.url.pathname.split("/")[2]! : null);
+
+  const chatNameQuery = trpc()?.chatName.createQuery(
+    reactiveQueryArgs(() => ({ chatId: chatId ?? "" })),
+    reactiveQueryArgs(() => ({ enabled: !!chatId }))
+  );
 </script>
 
 <Sidebar.Provider>
@@ -35,22 +49,22 @@
     >
       <div class="flex flex-1 items-center gap-2 px-3">
         <Sidebar.Trigger />
-        {#if $page.url.pathname.startsWith("/chat/")}
+        {#if isChatPage && chatId && $chatNameQuery?.data && $chatNameQuery?.data?.title}
           <Separator orientation="vertical" class="mr-2 h-4" />
           <Breadcrumb.Root>
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Breadcrumb.Page class="line-clamp-1 text-muted-foreground">
-                  Project Management & Task Tracking
+                  {$chatNameQuery?.data?.title}
                 </Breadcrumb.Page>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb.Root>
         {/if}
       </div>
-      {#if $page.url.pathname.startsWith("/chat/")}
+      {#if isChatPage && chatId}
         <div class="ml-auto px-3">
-          <NavActions />
+          <NavActions {chatId} />
         </div>
       {/if}
     </header>
