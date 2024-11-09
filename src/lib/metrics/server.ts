@@ -1,5 +1,5 @@
 import { env } from "$env/dynamic/private";
-import { createServer, Server } from "http";
+import { createServer, type Server } from "http";
 import { parse } from "url";
 import { register } from ".";
 import { log } from "$lib/log";
