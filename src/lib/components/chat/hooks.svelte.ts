@@ -93,6 +93,10 @@ export const useStreamedResponse = ({
     }
     await utils?.chat.invalidate({ chatId });
     await utils?.chat.refetch({ chatId });
+    utils?.chatName.invalidate({ chatId });
+    utils?.chatName.refetch({ chatId });
+    utils?.listChats.invalidate();
+    utils?.listChats.refetch();
     data.isStreaming = false;
   };
 

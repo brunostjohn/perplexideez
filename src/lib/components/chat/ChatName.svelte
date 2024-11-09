@@ -10,7 +10,12 @@
 
   const { chatId }: Props = $props();
 
-  const chatNameQuery = trpc()?.chatName.createQuery(reactiveQueryArgs(() => ({ chatId })));
+  const chatNameQuery = trpc()?.chatName.createQuery(
+    reactiveQueryArgs(() => ({ chatId })),
+    {
+      refetchInterval: 2000,
+    }
+  );
 </script>
 
 {#if $chatNameQuery?.data && $chatNameQuery?.data?.title}

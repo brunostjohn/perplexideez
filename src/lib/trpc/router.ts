@@ -1,4 +1,9 @@
-import { convertZodEnumToDbFocusMode, convertZodEnumToDbModel, db } from "$lib/db";
+import {
+  convertDbEnumToZodModel,
+  convertZodEnumToDbFocusMode,
+  convertZodEnumToDbModel,
+  db,
+} from "$lib/db";
 import * as Prisma from "@prisma/client";
 import { t } from "$lib/trpc/t";
 import { z } from "zod";
@@ -230,6 +235,45 @@ export const router = t.router({
         });
       }
     ),
+  setModelType: t.procedure
+    .input(z.object({ modelType: z.enum(["speed", "balanced", "quality"]) }))
+    .mutation(
+      async ({
+        input: { modelType },
+        ctx: {
+          user: { id },
+        },
+      }) => {
+        await db.user.update({
+          where: {
+            id,
+          },
+          data: {
+            lastSelectedModelType: convertZodEnumToDbModel(modelType),
+          },
+        });
+      }
+    ),
+  lastSelectedModelType: t.procedure.query(
+    async ({
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      const user = await db.user.findFirst({
+        where: {
+          id,
+        },
+        select: {
+          lastSelectedModelType: true,
+        },
+      });
+
+      if (!user?.lastSelectedModelType) return;
+
+      return convertDbEnumToZodModel(user?.lastSelectedModelType);
+    }
+  ),
 });
 
 export const createCaller = t.createCallerFactory(router);

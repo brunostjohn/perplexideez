@@ -16,7 +16,7 @@
       chatId,
     })),
     reactiveQueryArgs(() => ({
-      refetchInterval: 10000,
+      refetchInterval: 1000,
     }))
   );
 

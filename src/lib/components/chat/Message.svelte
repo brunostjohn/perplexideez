@@ -44,10 +44,10 @@
     onStreamed: () => {
       streamedOnce = true;
     },
-    refetch: () => {
+    refetch: async () => {
       const utils = trpc()?.createUtils();
-      utils?.chat.invalidate({ chatId });
-      utils?.chat.refetch({ chatId });
+      await utils?.chat.invalidate({ chatId });
+      await utils?.chat.refetch({ chatId });
     },
     enableStreaming: () => !streamedOnce,
   });

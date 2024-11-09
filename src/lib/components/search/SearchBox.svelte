@@ -8,6 +8,8 @@
   import { toast } from "svelte-sonner";
   import { goto } from "$app/navigation";
   import { getQueryKey } from "trpc-svelte-query-adapter";
+  import { cn } from "$lib/utils";
+  import { useDebounce } from "runed";
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -33,8 +35,17 @@
   let modelType = $state<"balanced" | "speed" | "quality">("balanced");
 
   const chatMutation = trpc()?.createChat.createMutation();
-
+  const toastChill = useDebounce(
+    () =>
+      toast.error("Please enter a question.", {
+        dismissable: true,
+      }),
+    () => 200
+  );
   const onSubmit = async () => {
+    if (!searchAreaContent.trim().length) {
+      toastChill();
+    }
     if (!searchArea || !searchArea.value || !chatMutation || !$chatMutation) return;
 
     try {
@@ -63,11 +74,14 @@
   }
 
   const { llmSpeed, llmBalanced, llmQuality }: Props = $props();
+
+  let searchAreaContent = $state<string>("");
 </script>
 
 <div class="flex w-full max-w-[60%] flex-col rounded-lg border bg-muted/30 p-6 pb-3 pl-3">
   <textarea
     bind:this={searchArea}
+    bind:value={searchAreaContent}
     onkeydown={handleKeyDown}
     placeholder="Ask anything..."
     class="max-h-24 w-full resize-none bg-transparent pl-3 text-lg placeholder:text-lg placeholder:text-muted-foreground focus:outline-none lg:max-h-36 xl:max-h-48"
@@ -81,7 +95,13 @@
           {#snippet child({ props })}
             <button
               {...props}
-              class="rounded-full bg-blue-500 p-2 transition-all hover:bg-blue-400 active:scale-95"
+              disabled={!searchAreaContent.trim().length}
+              class={cn(
+                "rounded-full  p-2 transition-all",
+                searchAreaContent.trim().length
+                  ? "bg-blue-500 hover:bg-blue-400 active:scale-95"
+                  : "bg-gray-500"
+              )}
               onclick={onSubmit}
             >
               <SendHorizonal class="size-4" />

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from "$lib/components/Icon.svelte";
   import { SearchBox } from "$lib/components/search";
   import type { PageServerData } from "./$types";
 
@@ -10,5 +11,8 @@
 </script>
 
 <main class="align-center flex h-full w-full flex-col items-center justify-center">
-  <SearchBox {llmSpeed} {llmBalanced} {llmQuality} />
+  <div class="align-center flex w-full flex-col items-center justify-center gap-6 pb-32">
+    <Icon class="size-32" />
+    <SearchBox {llmSpeed} {llmBalanced} {llmQuality} />
+  </div>
 </main>

@@ -1,7 +1,9 @@
 <script lang="ts">
   import * as Popover from "$lib/components/ui/popover";
+  import { trpc } from "$lib/trpc";
   import { cn } from "$lib/utils";
   import { Gauge, ChevronDown, Check, Scale } from "lucide-svelte";
+  import { onMount } from "svelte";
 
   interface Props {
     open?: boolean;
@@ -44,9 +46,24 @@
       description: "Get the most thorough and accurate answer.",
       modelName: llmQuality,
     },
-  ];
+  ] as const;
 
   const currentlySelected = $derived(models.find((model) => model.value === value)!);
+
+  const lastSelectedModelTypeMutation = trpc()?.setModelType.createMutation();
+  const lastSelectedModelType = trpc()?.lastSelectedModelType.createQuery(undefined, {
+    refetchInterval: 10000,
+  });
+  onMount(() => {
+    $lastSelectedModelType?.promise.then((modelType) => {
+      if (!modelType) return;
+      value = modelType;
+    });
+  });
+
+  const handleUpdateLastSelectedModelType = async (modelType: "quality" | "balanced" | "speed") => {
+    await $lastSelectedModelTypeMutation?.mutateAsync({ modelType });
+  };
 </script>
 
 {#snippet modelOption(model: (typeof models)[number])}
@@ -58,6 +75,7 @@
     onclick={() => {
       value = model.value;
       open = false;
+      handleUpdateLastSelectedModelType(model.value);
     }}
   >
     <div class="align-center mb-1 flex items-center gap-2">

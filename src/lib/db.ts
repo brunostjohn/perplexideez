@@ -23,6 +23,21 @@ export const convertZodEnumToDbModel = (
   throw new Error("Invalid model type");
 };
 
+export const convertDbEnumToZodModel = (
+  enumValue: Prisma.ModelType
+): z.infer<typeof createChatSchema>["modelType"] => {
+  switch (enumValue) {
+    case Prisma.ModelType.Speed:
+      return "speed";
+    case Prisma.ModelType.Balanced:
+      return "balanced";
+    case Prisma.ModelType.Quality:
+      return "quality";
+  }
+
+  throw new Error("Invalid model type");
+};
+
 export const convertZodEnumToDbFocusMode = (
   enumValue: z.infer<typeof createChatSchema>["focusMode"]
 ) => {

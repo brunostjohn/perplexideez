@@ -12,7 +12,9 @@
   import { toast } from "svelte-sonner";
   import { LoaderCircle } from "lucide-svelte";
 
-  const chatsQuery = trpc()?.listChats.createQuery();
+  const chatsQuery = trpc()?.listChats.createQuery(undefined, {
+    refetchInterval: 2000,
+  });
 
   const sidebar = useSidebar();
 
