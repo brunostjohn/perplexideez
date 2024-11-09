@@ -7,10 +7,10 @@
 <h3 align="center">Perplexideez</h3>
 <p align="center">
 Self-hosted AI-powered search.
-<br/>
-<br/>
-<a href="https://github.com/ShaanCoding/ReadME-Generator/issues/new?labels=bug&template=bug-report---.md">Report Bug</a> ·
-<a href="https://github.com/ShaanCoding/ReadME-Generator/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+<!-- <br/>
+<br/> -->
+<!-- <a href="https://github.com/ShaanCoding/ReadME-Generator/issues/new?labels=bug&template=bug-report---.md">Report Bug</a> ·
+<a href="https://github.com/ShaanCoding/ReadME-Generator/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a> -->
 </p>
 </div>
 
