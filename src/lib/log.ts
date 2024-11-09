@@ -19,5 +19,16 @@ export const log = pino(
         formatters: {
           level: (label) => ({ level: label.toLowerCase() }),
         },
+        transport:
+          env.LOG_MODE === "pretty"
+            ? {
+                target: "pino-pretty",
+                options: {
+                  colorize: true,
+                  levelFirst: true,
+                  translateTime: true,
+                },
+              }
+            : undefined,
       }
 );
