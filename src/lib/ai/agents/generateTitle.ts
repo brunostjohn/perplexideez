@@ -2,16 +2,25 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import type { ChatOllama } from "@langchain/ollama";
+import type { ChatOpenAI } from "@langchain/openai";
 
 const stringParser = new StringOutputParser();
 
-export const generateTitle = async (llm: ChatOllama, query: string, result: string) => {
+export const generateTitle = async (
+  llm: ChatOllama | ChatOpenAI,
+  query: string,
+  result: string
+) => {
   const titleGenerationChain = createTitleGenerationChain(llm, query, result);
   const title = await titleGenerationChain.invoke({});
   return title;
 };
 
-export const createTitleGenerationChain = (llm: ChatOllama, query: string, result: string) => {
+export const createTitleGenerationChain = (
+  llm: ChatOllama | ChatOpenAI,
+  query: string,
+  result: string
+) => {
   llm.temperature = 0;
 
   return RunnableSequence.from([

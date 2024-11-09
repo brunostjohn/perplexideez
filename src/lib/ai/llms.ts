@@ -2,45 +2,108 @@ import { building } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import { log } from "$lib/log";
 import { ChatOllama, type ChatOllamaInput } from "@langchain/ollama";
+import {
+  ChatOpenAI,
+  type ChatOpenAIFields,
+  type ClientOptions,
+  type LegacyOpenAIInput,
+} from "@langchain/openai";
 import { Ollama } from "ollama";
 
-const commonModelArgs: Partial<ChatOllamaInput> = {
+const commonOllamaModelArgs: Partial<ChatOllamaInput> = {
   baseUrl: env.OLLAMA_URL,
   temperature: 0.7,
 };
 
-export const llmSpeed = new ChatOllama({
-  model: env.LLM_SPEED_MODEL,
-  ...commonModelArgs,
-});
+const commonOpenAIModelArgs: Partial<ChatOpenAIFields> = {
+  temperature: 0.7,
+};
 
-export const llmBalanced = new ChatOllama({
-  model: env.LLM_BALANCED_MODEL,
-  ...commonModelArgs,
-});
+const commonOpenAIClientArgs: Partial<ClientOptions & LegacyOpenAIInput> = {
+  baseURL: env.OPENAI_BASE_URL,
+  apiKey: env.OPENAI_API_KEY,
+};
 
-export const llmQuality = new ChatOllama({
-  model: env.LLM_QUALITY_MODEL,
-  ...commonModelArgs,
-});
+const isOpenAI = env.LLM_MODE === "openai";
 
-export const llmEmoji = new ChatOllama({
-  model: env.LLM_EMOJI_MODEL,
-  ...commonModelArgs,
-});
+export const llmSpeed = isOpenAI
+  ? new ChatOpenAI(
+      {
+        model: env.LLM_SPEED_MODEL,
+        ...commonOpenAIModelArgs,
+      },
+      commonOpenAIClientArgs
+    )
+  : new ChatOllama({
+      model: env.LLM_SPEED_MODEL,
+      ...commonOllamaModelArgs,
+    });
 
-export const llmTitle = new ChatOllama({
-  model: env.LLM_TITLE_MODEL,
-  ...commonModelArgs,
-});
+export const llmBalanced = isOpenAI
+  ? new ChatOpenAI(
+      {
+        model: env.LLM_BALANCED_MODEL,
+        ...commonOpenAIModelArgs,
+      },
+      commonOpenAIClientArgs
+    )
+  : new ChatOllama({
+      model: env.LLM_BALANCED_MODEL,
+      ...commonOllamaModelArgs,
+    });
 
-export const ollama = new Ollama({
-  host: env.OLLAMA_URL,
-});
+export const llmQuality = isOpenAI
+  ? new ChatOpenAI(
+      {
+        model: env.LLM_QUALITY_MODEL,
+        ...commonOpenAIModelArgs,
+      },
+      commonOpenAIClientArgs
+    )
+  : new ChatOllama({
+      model: env.LLM_QUALITY_MODEL,
+      ...commonOllamaModelArgs,
+    });
 
-if (!building) {
+export const llmEmoji = isOpenAI
+  ? new ChatOpenAI(
+      {
+        model: env.LLM_EMOJI_MODEL,
+        ...commonOpenAIModelArgs,
+      },
+      commonOpenAIClientArgs
+    )
+  : new ChatOllama({
+      model: env.LLM_EMOJI_MODEL,
+      ...commonOllamaModelArgs,
+    });
+
+export const llmTitle = isOpenAI
+  ? new ChatOpenAI(
+      {
+        model: env.LLM_TITLE_MODEL,
+        ...commonOpenAIModelArgs,
+      },
+      commonOpenAIClientArgs
+    )
+  : new ChatOllama({
+      model: env.LLM_TITLE_MODEL,
+      ...commonOllamaModelArgs,
+    });
+
+export const ollama = !isOpenAI
+  ? new Ollama({
+      host: env.OLLAMA_URL,
+    })
+  : null;
+
+if (!building && isOpenAI) {
+  log.info("Using OpenAI models");
+}
+
+if (!building && !isOpenAI) {
   ollama
-    .list()
+    ?.list()
     .then(({ models }) => {
       log.trace({ models }, "Fetched models from Ollama");
       const requiredModels = [

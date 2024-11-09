@@ -4,22 +4,26 @@ import { formatChatHistoryAsString } from "$lib/ai/utils";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableMap, RunnableSequence } from "@langchain/core/runnables";
 import type { BaseMessage } from "@langchain/core/messages";
+import type { ChatOpenAI } from "@langchain/openai";
 
-type SuggestionGeneratorInput = {
+interface SuggestionGeneratorInput {
   chat_history: BaseMessage[];
-};
+}
 
 const outputParser = new LineListOutputParser({
   key: "suggestions",
 });
 
-export const generateSuggestions = (input: SuggestionGeneratorInput, llm: ChatOllama) => {
+export const generateSuggestions = (
+  input: SuggestionGeneratorInput,
+  llm: ChatOllama | ChatOpenAI
+) => {
   llm.temperature = 0;
   const suggestionGeneratorChain = createSuggestionGeneratorChain(llm);
   return suggestionGeneratorChain.invoke(input);
 };
 
-const createSuggestionGeneratorChain = (llm: ChatOllama) => {
+const createSuggestionGeneratorChain = (llm: ChatOllama | ChatOpenAI) => {
   return RunnableSequence.from([
     RunnableMap.from({
       chat_history: (input: SuggestionGeneratorInput) =>

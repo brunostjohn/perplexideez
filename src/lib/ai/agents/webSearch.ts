@@ -14,11 +14,12 @@ import { fetchDocumentsFromLinks } from "$lib/ai/documents";
 import { computeSimilarity, formatChatHistoryAsString } from "$lib/ai/utils";
 
 import EventEmitter from "events";
+import type { ChatOpenAI } from "@langchain/openai";
 
 export const basicWebSearch = (
   query: string,
   history: BaseMessage[],
-  llm: ChatOllama,
+  llm: ChatOllama | ChatOpenAI,
   embeddings: Embeddings,
   optimizationMode: "speed" | "balanced" | "quality"
 ) => {
@@ -36,7 +37,7 @@ export const basicWebSearch = (
 const streamWebSearchResponse = (
   query: string,
   emitter: EventEmitter,
-  llm: ChatOllama,
+  llm: ChatOllama | ChatOpenAI,
   embeddings: Embeddings,
   chat_history: BaseMessage[],
   optimizationMode: "speed" | "balanced" | "quality"
@@ -87,7 +88,7 @@ const handleStream = async (stream: IterableReadableStream<StreamEvent>, emitter
 };
 
 export const createBasicWebSearchAnsweringChain = (
-  llm: ChatOllama,
+  llm: ChatOllama | ChatOpenAI,
   optimisationMode: "speed" | "balanced" | "quality",
   embeddings: Embeddings
 ) =>
@@ -163,7 +164,7 @@ const rerankDocs = async (
   return sortedDocs;
 };
 
-export const createBasicWebSearchRetrieverChain = (llm: ChatOllama) => {
+export const createBasicWebSearchRetrieverChain = (llm: ChatOllama | ChatOpenAI) => {
   llm.temperature = 0;
 
   return RunnableSequence.from([
@@ -174,7 +175,7 @@ export const createBasicWebSearchRetrieverChain = (llm: ChatOllama) => {
   ]);
 };
 
-const buildDocumentsFromLinkAndQuestion = async (input: string, llm: ChatOllama) => {
+const buildDocumentsFromLinkAndQuestion = async (input: string, llm: ChatOllama | ChatOpenAI) => {
   const linksParser = new LineListOutputParser({
     key: "links",
   });

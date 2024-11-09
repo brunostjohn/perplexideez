@@ -2,16 +2,17 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import type { ChatOllama } from "@langchain/ollama";
+import type { ChatOpenAI } from "@langchain/openai";
 
 const stringParser = new StringOutputParser();
 
-export const generateEmoji = async (llm: ChatOllama, title: string) => {
+export const generateEmoji = async (llm: ChatOllama | ChatOpenAI, title: string) => {
   const emojiGenerationChain = createEmojiGenerationChain(llm, title);
   const emoji = await emojiGenerationChain.invoke({});
   return emoji;
 };
 
-export const createEmojiGenerationChain = (llm: ChatOllama, title: string) => {
+export const createEmojiGenerationChain = (llm: ChatOllama | ChatOpenAI, title: string) => {
   llm.temperature = 0;
 
   return RunnableSequence.from([
