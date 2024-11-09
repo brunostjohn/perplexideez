@@ -7,3 +7,4 @@ export { default as SourcePanel } from "./SourcePanel.svelte";
 export { default as AdditionalSourcesPanel } from "./AdditionalSourcesPanel.svelte";
 export { default as Sources } from "./Sources.svelte";
 export { default as Message } from "./Message.svelte";
+export { default as ChatName } from "./ChatName.svelte";

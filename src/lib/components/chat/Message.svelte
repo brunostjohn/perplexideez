@@ -1,13 +1,6 @@
 <script lang="ts">
-  import { BookCopy, MessageCircleQuestion } from "lucide-svelte";
-  import {
-    FollowUpQuestions,
-    MessageAccessories,
-    MessageSectionTitle,
-    MessageSidebar,
-    NewMessageBox,
-    Sources,
-  } from ".";
+  import { trpc } from "$lib/trpc";
+  import { FollowUpQuestions, MessageAccessories, MessageSidebar, NewMessageBox, Sources } from ".";
   import { LLMMarkdownRenderer } from "..";
   import { Separator } from "../ui/separator";
   import { useStreamedResponse } from "./hooks.svelte";
@@ -41,7 +34,7 @@
     isLoading: boolean;
   }
 
-  const { messagePair, chatId, isLoading }: Props = $props();
+  const { messagePair, chatId }: Props = $props();
 
   let streamedOnce = $state(false);
 
@@ -51,7 +44,17 @@
     onStreamed: () => {
       streamedOnce = true;
     },
+    refetch: () => {
+      const utils = trpc()?.createUtils();
+      utils?.chat.invalidate({ chatId });
+      utils?.chat.refetch({ chatId });
+    },
     enableStreaming: () => !streamedOnce,
+  });
+
+  $inspect({
+    isStreaming: streamedResponse.isStreaming,
+    dbContent: messagePair.aiResponse?.content,
   });
 </script>
 
@@ -65,15 +68,13 @@
         sources={messagePair.aiResponse?.sources}
       />
 
-      {#if messagePair.aiResponse?.sources !== undefined}
-        <LLMMarkdownRenderer
-          isStreaming={streamedResponse.isStreaming}
-          usedSources={messagePair.aiResponse?.sources}
-          source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
-            ? streamedResponse.streamedContent
-            : messagePair.aiResponse?.content) ?? ""}
-        />
-      {/if}
+      <LLMMarkdownRenderer
+        isStreaming={streamedResponse.isStreaming}
+        usedSources={messagePair.aiResponse?.sources}
+        source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
+          ? streamedResponse.streamedContent
+          : messagePair.aiResponse?.content) ?? ""}
+      />
 
       {#if !streamedResponse.isStreaming && messagePair.aiResponse}
         <MessageAccessories

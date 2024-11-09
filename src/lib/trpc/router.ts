@@ -3,6 +3,7 @@ import * as Prisma from "@prisma/client";
 import { t } from "$lib/trpc/t";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { log } from "$lib/log";
 
 export const createChatSchema = z.object({
   query: z.string().min(1, "You must provide a query."),
@@ -18,10 +19,9 @@ export const router = t.router({
       },
       input: { query, focusMode, modelType },
     }) => {
+      log.debug({ query, focusMode, modelType }, "Creating chat");
       const dbModelType = convertZodEnumToDbModel(modelType);
       const dbFocusMode = convertZodEnumToDbFocusMode(focusMode);
-
-      console.log(id);
 
       const chat = await db.chat.create({
         data: {
@@ -51,6 +51,7 @@ export const router = t.router({
         user: { id },
       },
     }) => {
+      log.debug("Listing chats");
       const chats = await db.chat.findMany({
         where: {
           userId: id,
@@ -123,6 +124,7 @@ export const router = t.router({
         user: { id },
       },
     }) => {
+      log.debug({ chatId }, "Deleting chat");
       await db.chat.delete({
         where: {
           id: chatId,

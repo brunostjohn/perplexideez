@@ -8,8 +8,7 @@
   import { page } from "$app/stores";
   import type { LayoutServerData } from "./$types";
   import { cn } from "$lib/utils";
-  import { trpc } from "$lib/trpc";
-  import { reactiveQueryArgs } from "$lib/utils.svelte";
+  import { ChatName } from "$lib/components/chat";
 
   interface Props {
     children?: Snippet;
@@ -31,11 +30,6 @@
 
   const isChatPage = $derived($page.url.pathname.startsWith("/chat/"));
   const chatId = $derived(isChatPage ? $page.url.pathname.split("/")[2]! : null);
-
-  const chatNameQuery = trpc()?.chatName.createQuery(
-    reactiveQueryArgs(() => ({ chatId: chatId ?? "" })),
-    reactiveQueryArgs(() => ({ enabled: !!chatId }))
-  );
 </script>
 
 <Sidebar.Provider>
@@ -49,17 +43,8 @@
     >
       <div class="flex flex-1 items-center gap-2 px-3">
         <Sidebar.Trigger />
-        {#if isChatPage && chatId && $chatNameQuery?.data && $chatNameQuery?.data?.title}
-          <Separator orientation="vertical" class="mr-2 h-4" />
-          <Breadcrumb.Root>
-            <Breadcrumb.List>
-              <Breadcrumb.Item>
-                <Breadcrumb.Page class="line-clamp-1 text-muted-foreground">
-                  {$chatNameQuery?.data?.title}
-                </Breadcrumb.Page>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb.Root>
+        {#if isChatPage && chatId}
+          <ChatName {chatId} />
         {/if}
       </div>
       {#if isChatPage && chatId}

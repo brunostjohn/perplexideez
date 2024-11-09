@@ -1,23 +1,22 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
+  import type { PageServerData } from "./$types";
   import { trpc } from "$lib/trpc";
   import { reactiveQueryArgs } from "$lib/utils.svelte";
   import { Message } from "$lib/components/chat";
 
   interface Props {
-    data: PageData;
+    data: PageServerData;
   }
 
   const { data }: Props = $props();
   const { id: chatId } = $derived(data);
-  let isStreaming = $state(false);
 
   const chatQuery = trpc()?.chat.createQuery(
     reactiveQueryArgs(() => ({
       chatId,
     })),
     reactiveQueryArgs(() => ({
-      refetchInterval: isStreaming ? 1000 : 10000,
+      refetchInterval: 10000,
     }))
   );
 

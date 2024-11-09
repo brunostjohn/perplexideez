@@ -3,10 +3,11 @@ import { error } from "@sveltejs/kit";
 import * as Prisma from "@prisma/client";
 import { basicWebSearch, generateEmoji, generateSuggestions, generateTitle } from "$lib/ai/agents";
 import { embeddings } from "$lib/ai/embedding";
-import { llmBalanced, llmQuality, llmSpeed } from "$lib/ai/llms";
+import { llmBalanced, llmEmoji, llmQuality, llmSpeed, llmTitle } from "$lib/ai/llms";
 import type { ChatOllama } from "@langchain/ollama";
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import ogs from "open-graph-scraper";
+import { log } from "$lib/log";
 
 export const POST = async ({ locals: { auth }, params: { id } }) => {
   const session = await auth();
@@ -21,7 +22,8 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
       messages: true,
     },
   });
-  console.log(chat);
+
+  log.trace(chat, "streaming chat");
   if (!chat) return error(404, "Chat not found");
 
   const { messages, focusMode } = chat;
@@ -39,12 +41,14 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
         },
       },
     });
+    log.debug({ chatId: chat.id }, "Deleted dangling pending assistant messages");
   }
 
   if (lastMessage.role === "Assistant" && !lastMessage.pending)
     return error(400, "Assistant already sent a message");
 
   const [llmType, llm] = dispatchLLM(chat.modelType);
+  log.debug({ llmType, chatId: chat.id }, "Dispatching LLM");
   const messageHistory = messages
     .filter(({ content }) => content)
     .map(({ role, content }) =>
@@ -53,6 +57,8 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
         : new AIMessage({ content: content! })
     );
   const lastUserMessage = messages.filter(({ role }) => role === Prisma.ChatRole.User).pop();
+  log.trace({ lastUserMessage }, "Last user message");
+  log.debug({ chatId: chat.id }, "Dispatching stream");
   const events = await dispatchStream(
     focusMode,
     messageHistory,
@@ -62,6 +68,7 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
   );
 
   let fullMessage = "";
+  log.trace({ chatId: chat.id }, "Creating new message");
   const newMessage = await db.message.create({
     data: {
       chatId: chat.id,
@@ -74,12 +81,12 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
     start: (controller) => {
       events.on("data", (data) => {
         if (data.type === "response") {
-          controller.enqueue(JSON.stringify(data));
+          controller.enqueue(JSON.stringify(data) + "\n");
           fullMessage += data.data;
         }
         if (data.type === "sources") {
           handleSources(data, newMessage.id)
-            .then(() => controller.enqueue(JSON.stringify({ type: "doneSources", data: "" })))
+            .then(() => controller.enqueue(JSON.stringify({ type: "doneSources" })))
             .catch(console.error);
         }
       });
@@ -88,6 +95,8 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
       });
       events.on("done", async (data) => {
         if (data.type === "response") {
+          controller.enqueue(JSON.stringify({ type: "doneResponse" }) + "\n");
+          log.debug({ messageId: newMessage.id }, "Updating message with generated content");
           await db.message.update({
             where: {
               id: newMessage.id,
@@ -107,7 +116,7 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
             },
           });
 
-          console.log("Generating suggestions");
+          log.debug({ chatId: chat.id }, "Generating follow-up suggestions");
           const suggestions = await generateSuggestions(
             {
               chat_history: messages
@@ -120,7 +129,7 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
             },
             llm
           );
-          console.log("Suggestions:", suggestions);
+          log.trace(suggestions, "Generated follow-up suggestions");
           await db.message.update({
             where: {
               id: newMessage.id,
@@ -130,16 +139,24 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
             },
           });
 
-          console.log("Generating title and emoji");
+          log.debug({ messageId: newMessage.id }, "Generating title and emoji");
           // it's for sure defined atp
-          const titleInContext = await generateTitle(llm, lastUserMessage!.content!, fullMessage);
-          console.log("Title in context:", titleInContext);
+          const titleInContext = await generateTitle(
+            llmTitle,
+            lastUserMessage!.content!,
+            fullMessage
+          );
+          log.trace({ titleInContext }, "Title in context");
           const title = titleInContext.split("<title>")[1]?.split("</title>")[0];
-          console.log("Title:", title);
-          const emojiInContext = title ? await generateEmoji(llm, title) : null;
-          console.log("Emoji in context:", emojiInContext);
-          const emoji = emojiInContext?.split("<emoji>")[1]?.split("</emoji>")[0];
-          console.log("Emoji:", emoji);
+          log.trace({ title }, "Extracted title");
+          const emojiInContext = title ? await generateEmoji(llmEmoji, title) : null;
+          log.trace(
+            { emojiInContext, lengthEmojiInContext: emojiInContext?.length },
+            "Emoji in context"
+          );
+          const emojiSeparated = emojiInContext?.split("<emoji>")[1]?.split("</emoji>")[0];
+          const emoji = emojiInContext?.length === 1 ? emojiInContext : emojiSeparated;
+          log.trace({ emoji }, "Extracted emoji");
           await db.chat.update({
             where: {
               id: chat.id,
@@ -149,6 +166,9 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
               emoji,
             },
           });
+          log.debug({ messageId: newMessage.id }, "Generated title and emoji");
+          controller.enqueue(JSON.stringify({ type: "doneTitleEmoji" }));
+          controller.close();
         }
       });
     },
@@ -165,6 +185,7 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
 };
 
 const handleSources = async ({ data: sources }: Sources, messageId: string) => {
+  log.debug({ messageId }, "Handling sources");
   const sourcesNormalised = await Promise.all(
     sources.map(async ({ pageContent, metadata: { title, url } }, i) => {
       try {
@@ -198,6 +219,7 @@ const handleSources = async ({ data: sources }: Sources, messageId: string) => {
           faviconUrl,
         };
       } catch {
+        log.error({ url, title }, "Failed to fetch OpenGraph data for source");
         return {
           pageContent,
           title,

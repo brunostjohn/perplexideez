@@ -4,8 +4,11 @@ import { handle as handleAuth } from "$lib/auth";
 import { createTRPCHandle } from "trpc-sveltekit";
 import { router } from "$lib/trpc/router";
 import { createContext } from "$lib/trpc/context";
+import { log } from "$lib/log";
+import { createMetricsServer } from "$lib/metrics";
 
 const ALLOWED_UNAUTHENTICATED_PATHS = ["/auth", "/api/auth"];
+const METRICS_SERVER = createMetricsServer();
 
 export const handle: Handle = sequence(
   handleAuth,
@@ -27,9 +30,17 @@ export const handle: Handle = sequence(
     }
 
     if (pathname === "/") {
+      log.info("unauthenticated user redirected to /auth");
       return redirect(307, "/auth");
     }
 
+    log.info({ pathname }, "unauthenticated user redirected to /auth");
     return redirect(307, `/auth?redirect=${encodeURIComponent(pathname)}&protected=true`);
   }
 );
+
+export const handleError: Handle = async ({ event, resolve }) => {
+  log.error(event, "Error");
+
+  return resolve(event);
+};

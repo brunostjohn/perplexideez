@@ -55,6 +55,14 @@
       toast.error("Failed to create chat.");
     }
   };
+
+  interface Props {
+    llmSpeed: string;
+    llmBalanced: string;
+    llmQuality: string;
+  }
+
+  const { llmSpeed, llmBalanced, llmQuality }: Props = $props();
 </script>
 
 <div class="flex w-full max-w-[60%] flex-col rounded-lg border bg-muted/30 p-6 pb-3 pl-3">
@@ -67,7 +75,7 @@
   <div class="align-center flex w-full items-center justify-between">
     <FocusMode bind:value={focusMode} />
     <div class="align-center flex items-center gap-2">
-      <SelectModel bind:value={modelType} />
+      <SelectModel bind:value={modelType} {llmSpeed} {llmBalanced} {llmQuality} />
       <Tooltip.Root>
         <Tooltip.Trigger>
           {#snippet child({ props })}

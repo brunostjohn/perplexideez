@@ -1,3 +1,5 @@
+import { trpc } from "$lib/trpc";
+
 interface Options {
   chatId: string;
   lastMessage: {
@@ -29,7 +31,6 @@ export const useStreamedResponse = ({
     if (!enableStreamingValue || data.isStreaming) return;
 
     if (lastMessage.role === "User" || (lastMessage.role === "Assistant" && lastMessage.pending)) {
-      console.log("attempting to stream respnose!");
       onStreamed?.();
       streamAResponse();
     }
@@ -46,19 +47,43 @@ export const useStreamedResponse = ({
     const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
     if (!reader) return;
 
-    while (true) {
+    let isNotDone = true;
+    const utils = trpc()?.createUtils();
+    while (isNotDone) {
       const { done, value } = await reader.read();
       if (done) break;
       try {
-        const parsed = JSON.parse(value) as {
-          type: "response" | "sources" | "doneSources";
-          data: string;
-        };
-        if (parsed.type === "response") {
-          data.streamedContent += parsed.data;
-        }
-        if (parsed.type === "doneSources") {
-          refetch?.();
+        const parsed = value
+          .split("\n")
+          .filter((v) => v.startsWith("{") && v.endsWith("}"))
+          .map(
+            (v) =>
+              JSON.parse(v) as {
+                type: "response" | "sources" | "doneSources" | "doneTitleEmoji" | "doneResponse";
+                data: string;
+              }
+          );
+
+        let emptyTokens = 0;
+
+        for (const val of parsed) {
+          if (val.type === "doneResponse") {
+            console.log("got done!");
+            isNotDone = false;
+          }
+          if (val.type === "response") {
+            data.streamedContent += val.data;
+            if (!val.data.length) emptyTokens++;
+          }
+          if (val.type === "doneSources") {
+            refetch?.();
+          }
+          if (val.type === "doneTitleEmoji") {
+            utils?.chatName.invalidate({ chatId });
+            utils?.chatName.refetch({ chatId });
+            utils?.listChats.invalidate();
+            utils?.listChats.refetch();
+          }
         }
       } catch {
         console.warn(value);
@@ -66,6 +91,8 @@ export const useStreamedResponse = ({
         break;
       }
     }
+    await utils?.chat.invalidate({ chatId });
+    await utils?.chat.refetch({ chatId });
     data.isStreaming = false;
   };
 

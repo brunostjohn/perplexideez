@@ -6,9 +6,18 @@
   interface Props {
     open?: boolean;
     value?: string;
+    llmSpeed: string;
+    llmBalanced: string;
+    llmQuality: string;
   }
 
-  let { open = $bindable(false), value = $bindable("balanced") }: Props = $props();
+  let {
+    open = $bindable(false),
+    value = $bindable("balanced"),
+    llmSpeed,
+    llmBalanced,
+    llmQuality,
+  }: Props = $props();
 
   const models = [
     {
@@ -17,7 +26,7 @@
       className: "text-yellow-400",
       value: "speed",
       description: "Prioritise speed and get the quickest possible answer.",
-      modelName: "gemma2:2b",
+      modelName: llmSpeed,
     },
     {
       name: "Balanced",
@@ -25,7 +34,7 @@
       className: "text-blue-400",
       value: "balanced",
       description: "Find the right balance between speed and accuracy.",
-      modelName: "llama3.1:latest",
+      modelName: llmBalanced,
     },
     {
       name: "Quality",
@@ -33,7 +42,7 @@
       className: "text-green-400",
       value: "quality",
       description: "Get the most thorough and accurate answer.",
-      modelName: "llama3.1:latest",
+      modelName: llmQuality,
     },
   ];
 
