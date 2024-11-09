@@ -6,7 +6,7 @@
 
 <Sidebar.MenuButton class="w-fit px-1.5">
   <div class="align-center flex items-center justify-center">
-    <Icon class="size-5" />
+    <Icon class="size-6" />
   </div>
   <span class="truncate font-semibold">Perplexideez</span>
 </Sidebar.MenuButton>
