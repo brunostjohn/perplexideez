@@ -4,7 +4,6 @@
   import { marked, type TokenizerExtension } from "marked";
   import { MessageSectionTitle } from "./chat";
   import { MessageCircleQuestion } from "lucide-svelte";
-  import { fade } from "svelte/transition";
   import { cn } from "$lib/utils";
 
   interface Source {

@@ -93,6 +93,9 @@ importers:
       '@types/html-to-text':
         specifier: ^9.0.4
         version: 9.0.4
+      '@types/marked':
+        specifier: ^6.0.0
+        version: 6.0.0
       '@types/moment':
         specifier: ^2.13.0
         version: 2.13.0
@@ -121,8 +124,8 @@ importers:
         specifier: ^0.454.0
         version: 0.454.0(svelte@5.1.9)
       marked:
-        specifier: ^14.1.4
-        version: 14.1.4
+        specifier: ^5.1.2
+        version: 5.1.2
       mode-watcher:
         specifier: ^0.4.1
         version: 0.4.1(svelte@5.1.9)
@@ -726,6 +729,10 @@ packages:
 
   '@types/marked@5.0.2':
     resolution: {integrity: sha512-OucS4KMHhFzhz27KxmWg7J+kIYqyqoW5kdIEI319hqARQQUTqhao3M/F+uFnDXD0Rg72iDDZxZNxq5gvctmLlg==}
+
+  '@types/marked@6.0.0':
+    resolution: {integrity: sha512-jmjpa4BwUsmhxcfsgUit/7A9KbrC48Q0q8KvnY107ogcjGgTFDlIL3RpihNpx2Mu1hM4mdFQjoVc4O6JoGKHsA==}
+    deprecated: This is a stub types definition. marked provides its own type definitions, so you do not need this installed.
 
   '@types/moment@2.13.0':
     resolution: {integrity: sha512-DyuyYGpV6r+4Z1bUznLi/Y7HpGn4iQ4IVcGn8zrr1P4KotKLdH0sbK1TFR6RGyX6B+G8u83wCzL+bpawKU/hdQ==}
@@ -1431,11 +1438,6 @@ packages:
 
   magic-string@0.30.12:
     resolution: {integrity: sha512-Ea8I3sQMVXr8JhN4z+H/d8zwo+tYDgHE9+5G4Wnrwhs0gaK9fXTKx0Tw5Xwsd/bCPTTZNRAdpyzvoeORe9LYpw==}
-
-  marked@14.1.4:
-    resolution: {integrity: sha512-vkVZ8ONmUdPnjCKc5uTRvmkRbx4EAi2OkTOXmfTDhZz3OFqMNBM1oTTWwTr4HY4uAEojhzPf+Fy8F1DWa3Sndg==}
-    engines: {node: '>= 18'}
-    hasBin: true
 
   marked@5.1.2:
     resolution: {integrity: sha512-ahRPGXJpjMjwSOlBoTMZAK7ATXkli5qCPxZ21TG44rx1KEo44bii4ekgTDQPNRQ4Kh7JMb9Ub1PVk1NxRSsorg==}
@@ -2742,6 +2744,10 @@ snapshots:
 
   '@types/marked@5.0.2': {}
 
+  '@types/marked@6.0.0':
+    dependencies:
+      marked: 5.1.2
+
   '@types/moment@2.13.0':
     dependencies:
       moment: 2.30.1
@@ -3434,8 +3440,6 @@ snapshots:
   magic-string@0.30.12:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
-
-  marked@14.1.4: {}
 
   marked@5.1.2: {}
 

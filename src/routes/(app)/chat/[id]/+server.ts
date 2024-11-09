@@ -5,7 +5,7 @@ import { basicWebSearch, generateEmoji, generateSuggestions, generateTitle } fro
 import { embeddings } from "$lib/ai/embedding";
 import { llmBalanced, llmEmoji, llmQuality, llmSpeed, llmTitle } from "$lib/ai/llms";
 import type { ChatOllama } from "@langchain/ollama";
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages";
 import ogs from "open-graph-scraper";
 import { log } from "$lib/log";
 
