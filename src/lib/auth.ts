@@ -6,7 +6,7 @@ import { env as envPublic } from "$env/dynamic/public";
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
   adapter: PrismaAdapter(db),
-
+  trustHost: true,
   providers: [
     {
       id: "generic-oauth",
