@@ -1,8 +1,8 @@
 
 <br/>
 <div align="center">
-<a href="static/favicon.png">
-<img src="static/favicon.png" alt="Logo" width="80" height="80">
+<a href="assets/icon-frameless.png">
+<img src="assets/icon-frameless.png" alt="Logo" width="100" height="100">
 </a>
 <h3 align="center">Perplexideez</h3>
 <p align="center">
@@ -16,7 +16,7 @@ Self-hosted AI-powered search.
 
 ## About The Project
 
-![Screenshot](/browser.png)
+![Screenshot](/assets/browser.png)
 
 There are many self-hosted Perplexity clones out there. I chose to make my own as I was dissatisfied with their non-existent integration with other self-hosted services and lack of multi-user support. Perplexideez is backed by a Postgres database & either Ollama or OpenAI compatible endpoints. It searches the web using a SearXNG instance.
 
