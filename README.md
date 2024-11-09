@@ -82,7 +82,7 @@ You need either an OpenAI API token/OpenAI compatible API or an Ollama instance 
   - [ ] Web agents
   - [ ] Self-hosted app agents
 
-See the [open issues](https://github.com/ShaanCoding/ReadME-Generator/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/brunostjohn/perplexideez/issues) for a full list of proposed features (and known issues).
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.

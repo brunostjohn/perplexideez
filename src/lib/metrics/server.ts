@@ -34,6 +34,10 @@ export const createMetricsServer = () => {
       res.end(await register.metrics());
       log.trace("Served metrics");
     }).listen(port, "0.0.0.0");
+
+    server.on("error", (error) => {
+      log.error(error, "Metrics server error");
+    });
   } catch (error) {
     log.error(error, "Failed to start metrics server");
   }
