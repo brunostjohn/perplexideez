@@ -14,7 +14,7 @@ jobs:
     env:
       CHART_DIR: deploy/kubernetes
       CHART_REPO: brunostjohn/charts
-      CHART_REPO_BRANCH: master
+      CHART_REPO_BRANCH: gh-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
