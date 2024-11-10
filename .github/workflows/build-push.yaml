@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "deploy/*.Dockerfile"
+      - "*.json"
+      - "*.ts"
+      - pnpm-lock.yaml
+      - "*.js"
+      - "src/**"
+      - "prisma/**"
+      - "static/**"
+      - ".gitignore"
   workflow_dispatch:
 
 jobs:
