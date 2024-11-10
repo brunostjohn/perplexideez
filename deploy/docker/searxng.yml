@@ -33,7 +33,7 @@ services:
     image: docker.io/searxng/searxng:latest
     restart: unless-stopped
     volumes:
-      - searxng-data:/etc/searxng:rw
+      - ./searxng:/etc/searxng:rw
     environment:
       - SEARXNG_BASE_URL=http://searxng:8080/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
@@ -47,4 +47,3 @@ services:
 
 volumes:
   valkey-data:
-  searxng-data:

@@ -1,4 +1,3 @@
-
 <br/>
 <div align="center">
 <a href="assets/icon-frameless.png">
@@ -43,12 +42,13 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-You need either an OpenAI API token/OpenAI compatible API or an Ollama instance running somewhere. Pair this with a SearXNG instance. The development container setup only provides Postgres.
+You need either an OpenAI API token/OpenAI compatible API or an Ollama instance running somewhere. The development container setup only provides Postgres and SearXNG.
 
 - pnpm
   ```sh
   corepack install pnpm
   ```
+
 ### Installation
 
 1. Clone the repo
@@ -83,6 +83,7 @@ You need either an OpenAI API token/OpenAI compatible API or an Ollama instance 
   - [ ] Self-hosted app agents
 
 See the [open issues](https://github.com/brunostjohn/perplexideez/issues) for a full list of proposed features (and known issues).
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.

@@ -1,14 +1,85 @@
 services:
+  redis:
+    hostname: redis
+    image: docker.io/valkey/valkey:8-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: "[ $$(valkey-cli ping) = 'PONG' ]"
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    volumes:
+      - valkey-data:/data
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+
+  searxng:
+    hostname: searxng
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: "wget http://searxng:8080/healthz -q -O - | cat - || exit 1"
+      start_period: 5s
+      timeout: 3s
+      interval: 1s
+      retries: 5
+    image: docker.io/searxng/searxng:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/docker/searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - ./deploy/docker/searxng/limiter.toml:/etc/searxng/limiter.toml:ro
+    environment:
+      - SEARXNG_BASE_URL=http://searxng:8080/
+      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
+      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+
+  init_db:
+    image: postgres:16-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    entrypoint:
+      - sh
+      - -c
+      - |
+        chown -R 2000:2000 /var/lib/postgresql/data
+
   postgres:
     image: postgres:16-alpine
-    ports:
-      - 5432:5432
+    depends_on:
+      init_db:
+        condition: service_completed_successfully
+    restart: unless-stopped
     volumes:
-      - perplexideez-pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -d postgres -U postgres -h localhost"
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 20s
+    ports:
+      - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+    user: "2000"
 
 volumes:
-  perplexideez-pgdata:
+  pgdata:
+  valkey-data:
