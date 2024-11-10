@@ -16,6 +16,8 @@ interface SearxngSearchResult {
   content?: string;
   author?: string;
   iframe_src?: string;
+  length?: string;
+  views?: string;
 }
 
 export const searchSearxng = async (query: string, opts?: SearxngSearchOptions) => {

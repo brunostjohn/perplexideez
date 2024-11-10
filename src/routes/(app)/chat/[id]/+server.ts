@@ -46,11 +46,44 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
   if (lastMessage.role === "Assistant" && !lastMessage.pending)
     return error(400, "Assistant already sent a message");
 
+  const { llmType, llm, messageHistory, lastUserMessage } = await prepareStream(chat, messages);
+
+  const stream = await createLLMStream(
+    focusMode,
+    messageHistory,
+    llm,
+    lastUserMessage,
+    llmType,
+    chat,
+    messages
+  );
+
+  return new Response(stream, {
+    headers: {
+      "content-type": "text/event-stream",
+    },
+  });
+};
+
+const prepareStream = async (chat: Prisma.Chat, messages: Prisma.Message[]) => {
   const [llmType, llm] = dispatchLLM(chat.modelType);
   log.debug({ llmType, chatId: chat.id }, "Dispatching LLM");
   const messageHistory = createBaseMessageFromDbChat(messages);
   const lastUserMessage = messages.filter(({ role }) => role === Prisma.ChatRole.User).pop();
   log.trace({ lastUserMessage }, "Last user message");
+
+  return { llmType, llm, messageHistory, lastUserMessage };
+};
+
+const createLLMStream = async (
+  focusMode: Prisma.FocusMode,
+  messageHistory: BaseMessage[],
+  llm: ChatOllama | ChatOpenAI,
+  lastUserMessage: Prisma.Message | undefined,
+  llmType: "speed" | "balanced" | "quality",
+  chat: Prisma.Chat,
+  messages: Prisma.Message[]
+) => {
   log.debug({ chatId: chat.id }, "Dispatching stream");
   const events = await dispatchStream(
     focusMode,
@@ -70,57 +103,76 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
     },
   });
 
-  const stream = new ReadableStream({
+  return new ReadableStream({
     start: (controller) => {
-      events.on("data", (data) => {
-        if (data.type === "response") {
-          controller.enqueue(JSON.stringify(data) + "\n");
-          fullMessage += data.data;
-        }
-        if (data.type === "sources") {
-          handleSources(data, newMessage.id)
-            .then(() => controller.enqueue(JSON.stringify({ type: "doneSources" })))
-            .catch(console.error);
-        }
-      });
+      events.on("data", (data) =>
+        handleResponseData(
+          data,
+          controller,
+          newMessage.id,
+          (stringAppend) => (fullMessage += stringAppend)
+        )
+      );
       events.on("error", (error) => {
         controller.error(JSON.stringify(error));
       });
-      events.on("done", async (data) => {
-        if (data.type === "response") {
-          const savedMessages = await handleEndResponse(
-            controller,
-            newMessage.id,
-            chat.id,
-            fullMessage
-          );
-          const baseMessages = createBaseMessageFromDbChat(savedMessages);
-
-          await handleSuggestions(chat.id, newMessage.id, llm, baseMessages);
-          await handleTitleEmojis(
-            newMessage.id,
-            lastUserMessage!.content!,
-            fullMessage,
-            chat.id,
-            controller
-          );
-          await handleImages(newMessage.id, chat.id, lastUserMessage!.content!, llm, baseMessages);
-          await handleVideos(newMessage.id, chat.id, lastUserMessage!.content!, llm, baseMessages);
-
-          controller.close();
-        }
-      });
+      events.on("done", async (data) =>
+        handleDoneResponse(
+          data,
+          newMessage.id,
+          messages,
+          llm,
+          controller,
+          fullMessage,
+          chat.id,
+          lastUserMessage!.content!
+        )
+      );
     },
     cancel: () => {
       events.removeAllListeners();
     },
   });
+};
 
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream",
-    },
-  });
+const handleResponseData = (
+  data: any,
+  controller: ReadableStreamDefaultController,
+  newMessageId: string,
+  appendCb: (stringAppend: string) => void
+) => {
+  if (data.type === "response") {
+    controller.enqueue(JSON.stringify(data) + "\n");
+    appendCb(data.data);
+  }
+  if (data.type === "sources") {
+    handleSources(data, newMessageId)
+      .then(() => controller.enqueue(JSON.stringify({ type: "doneSources" })))
+      .catch(console.error);
+  }
+};
+
+const handleDoneResponse = async (
+  data: any,
+  newMessageId: string,
+  savedMessages: Prisma.Message[],
+  llm: ChatOllama | ChatOpenAI,
+  controller: ReadableStreamDefaultController,
+  fullMessage: string,
+  chatId: string,
+  lastUserMessageContent: string
+) => {
+  if (data.type === "response") {
+    const savedMessages = await handleEndResponse(controller, newMessageId, chatId, fullMessage);
+    const baseMessages = createBaseMessageFromDbChat(savedMessages);
+
+    await handleSuggestions(chatId, newMessageId, llm, baseMessages);
+    await handleTitleEmojis(newMessageId, lastUserMessageContent, fullMessage, chatId, controller);
+    await handleImages(newMessageId, chatId, lastUserMessageContent, llm, baseMessages);
+    await handleVideos(newMessageId, chatId, lastUserMessageContent, llm, baseMessages);
+
+    controller.close();
+  }
 };
 
 const handleDanglingMessages = async (
