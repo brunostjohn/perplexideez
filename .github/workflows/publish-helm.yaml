@@ -12,7 +12,7 @@ on:
 jobs:
   release:
     env:
-      CHART_DIR: charts
+      CHART_DIR: deploy/kubernetes
       CHART_REPO: brunostjohn/charts
       CHART_REPO_BRANCH: master
     runs-on: ubuntu-latest
