@@ -1,34 +1,38 @@
-name: Publish Helm Charts
+name: Release Charts
 
 on:
   push:
     branches:
-      - main
+      - master
     paths:
-      - "deploy/kubernetes/**"
-      - ".github/workflows/publish-helm.yaml"
+      - deploy/kubernetes/**
+      - .github/workflows/release-charts.yaml
+
   workflow_dispatch:
 
 jobs:
   release:
+    name: Release Charts
+    permissions:
+      contents: write
     env:
-      CHART_DIR: deploy/kubernetes
+      CHART_DIR: charts
       CHART_REPO: brunostjohn/charts
       CHART_REPO_BRANCH: gh-pages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout Helm chart repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.CHART_REPO }}
           path: .helm-chart-repo
           token: ${{ secrets.CHART_GITHUB_TOKEN }}
 
       - name: Install yq - portable yaml processor
-        uses: mikefarah/yq@v4.30.5
+        uses: mikefarah/yq@v4.35.1
 
       - name: Collect charts
         id: charts
@@ -51,7 +55,7 @@ jobs:
           | tar zxf - -C /usr/local/bin
 
       - name: Install Helm
-        uses: azure/setup-helm@v3.4
+        uses: azure/setup-helm@v3.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -86,7 +90,7 @@ jobs:
           git config --list
           owner=$(cut -d '/' -f 1 <<< '${{ github.repository }}')
           repo=$(cut -d '/' -f 2 <<< '${{ github.repository }}')
-          cr upload --commit '${{ github.sha }}' --git-repo "$repo" --owner "$owner" --token '${{ secrets.CHART_GITHUB_TOKEN }}' \
+          cr upload --commit '${{ github.sha }}' --git-repo "$repo" --owner "$owner" --token '${{ github.token }}' \
             --package-path '${{ steps.package.outputs.dir }}' --skip-existing
 
       - name: Update charts index
