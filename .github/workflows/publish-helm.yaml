@@ -3,7 +3,7 @@ name: Release Charts
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - deploy/kubernetes/**
       - .github/workflows/publish-helm.yaml
