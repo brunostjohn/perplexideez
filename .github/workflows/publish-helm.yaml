@@ -34,7 +34,7 @@ jobs:
         id: charts
         run: |
           set -e
-          find -L charts -mindepth 2 -maxdepth 2 -type f \( -name 'Chart.yaml' -o -name 'Chart.yml' \) -exec dirname "{}" \; \
+          find -L deploy/kubernetes -mindepth 2 -maxdepth 2 -type f \( -name 'Chart.yaml' -o -name 'Chart.yml' \) -exec dirname "{}" \; \
           | sort -u \
           | sed -E 's/^/- /' \
           | yq --no-colors --indent 0 --output-format json '.' \
