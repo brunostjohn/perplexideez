@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - deploy/kubernetes/**
-      - .github/workflows/release-charts.yaml
+      - .github/workflows/publish-helm.yaml
 
   workflow_dispatch:
 
