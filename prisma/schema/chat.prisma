@@ -1,41 +1,52 @@
 model Chat {
-    id         String    @id @unique @default(cuid())
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-    title      String
-    emoji      String?
-    userId     String
-    isFavorite Boolean   @default(false)
-    focusMode  FocusMode
-    modelType  ModelType
-    user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    messages   Message[]
+    id           String        @id @unique @default(cuid())
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    title        String?
+    emoji        String?
+    userId       String
+    isFavorite   Boolean       @default(false)
+    focusMode    FocusMode
+    modelType    ModelType
+    imageResults ImageResult[]
+    videoResults VideoResult[]
+    sharedLinks  SharedLink[]
+    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    messages     Message[]
+}
+
+model SharedLink {
+    id           String    @id @unique @default(cuid())
+    createdAt    DateTime  @default(now())
+    shredBy      DateTime?
+    chatId       String
+    requiredAuth Boolean
+    chat         Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Message {
-    id           String        @id @unique @default(cuid())
-    createdAt    DateTime      @default(now())
-    pending      Boolean?
-    content      String?
-    chatId       String
-    chat         Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
-    role         ChatRole
-    sources      Source[]
-    suggestions  String[]
-    imageResults ImageResult[]
-    videoResults VideoResult[]
-    metadata     Json?
+    id               String   @id @unique @default(cuid())
+    createdAt        DateTime @default(now())
+    pending          Boolean
+    rewriteRequested Boolean?
+    content          String?
+    chatId           String
+    chat             Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    role             ChatRole
+    sources          Source[]
+    suggestions      String[]
+    metadata         Json?
 }
 
 model ImageResult {
-    id           String  @id @unique @default(cuid())
+    id           String @id @unique @default(cuid())
     title        String
     url          String
     thumbnailUrl String
     imageUrl     String
     content      String
-    messageId    String
-    message      Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+    chatId       String
+    chat         Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model VideoResult {
@@ -46,8 +57,8 @@ model VideoResult {
     thumbnailUrl String
     length       String?
     views        String?
-    messageId    String
-    message      Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+    chatId       String
+    chat         Chat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Source {

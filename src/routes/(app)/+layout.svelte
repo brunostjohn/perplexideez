@@ -2,9 +2,8 @@
   import type { Snippet } from "svelte";
   import AppSidebar from "$lib/components/AppSidebar.svelte";
   import NavActions from "$lib/components/NavActions.svelte";
-  import * as Breadcrumb from "$lib/components/ui/breadcrumb";
-  import { Separator } from "$lib/components/ui/separator";
   import * as Sidebar from "$lib/components/ui/sidebar";
+  import { ScrollArea } from "$lib/components/ui/scroll-area";
   import { page } from "$app/stores";
   import type { LayoutServerData } from "./$types";
   import { cn } from "$lib/utils";
@@ -17,15 +16,14 @@
 
   const { children, data }: Props = $props();
 
-  let scrollDiv = $state<HTMLDivElement>();
-  let isScrollDivScrolledToTop = $state(false);
+  let isScrollDivScrolledToTop = $state(true);
 
   $effect(() => {
     if ($page.url.pathname === "/") isScrollDivScrolledToTop = true;
   });
 
-  const handleScroll = () => {
-    isScrollDivScrolledToTop = scrollDiv?.scrollTop === 0;
+  const handleScroll = (e: UIEvent) => {
+    isScrollDivScrolledToTop = (e.target as HTMLDivElement)?.scrollTop === 0;
   };
 
   const isChatPage = $derived($page.url.pathname.startsWith("/chat/"));
@@ -37,7 +35,7 @@
   <Sidebar.Inset class="relative h-screen max-h-screen overflow-hidden">
     <header
       class={cn(
-        "absolute left-0 top-0 flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-saturate-150",
+        "absolute left-0 top-0 z-[1] flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-saturate-150",
         isScrollDivScrolledToTop ? "" : "backdrop-brightness-50"
       )}
     >
@@ -53,12 +51,13 @@
         </div>
       {/if}
     </header>
-    <div
-      class="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 pb-10 pt-16"
-      bind:this={scrollDiv}
+    <ScrollArea
+      class="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden"
+      viewportClasses="px-4 pb-10 pt-16"
+      scrollbarYClasses="z-[2]"
       onscroll={handleScroll}
     >
       {@render children?.()}
-    </div>
+    </ScrollArea>
   </Sidebar.Inset>
 </Sidebar.Provider>

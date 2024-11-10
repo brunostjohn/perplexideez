@@ -1,7 +1,7 @@
 use_default_settings: true
 server:
   secret_key: "megasecretkey" # change this!
-  limiter: true # can be disabled for a private instance
+  limiter: false # can be disabled for a private instance
   image_proxy: true
 search:
   formats:

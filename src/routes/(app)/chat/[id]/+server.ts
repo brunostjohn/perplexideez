@@ -1,13 +1,21 @@
 import { db } from "$lib/db";
 import { error } from "@sveltejs/kit";
 import * as Prisma from "@prisma/client";
-import { basicWebSearch, generateEmoji, generateSuggestions, generateTitle } from "$lib/ai/agents";
+import {
+  basicWebSearch,
+  generateEmoji,
+  generateSuggestions,
+  generateTitle,
+  handleImageSearch,
+  handleVideoSearch,
+} from "$lib/ai/agents";
 import { embeddings } from "$lib/ai/embedding";
 import { llmBalanced, llmEmoji, llmQuality, llmSpeed, llmTitle } from "$lib/ai/llms";
 import type { ChatOllama } from "@langchain/ollama";
 import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages";
 import ogs from "open-graph-scraper";
 import { log } from "$lib/log";
+import type { ChatOpenAI } from "@langchain/openai";
 
 export const POST = async ({ locals: { auth }, params: { id } }) => {
   const session = await auth();
@@ -20,6 +28,8 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
     },
     include: {
       messages: true,
+      imageResults: true,
+      videoResults: true,
     },
   });
 
@@ -30,32 +40,15 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
   const lastMessage = messages[messages.length - 1];
 
   if (!lastMessage) return error(400, "No messages in chat");
-  if (messages.find(({ role, pending }) => role === Prisma.ChatRole.Assistant && pending)) {
-    await db.message.deleteMany({
-      where: {
-        chatId: chat.id,
-        role: Prisma.ChatRole.Assistant,
-        pending: true,
-        id: {
-          not: lastMessage.id,
-        },
-      },
-    });
-    log.debug({ chatId: chat.id }, "Deleted dangling pending assistant messages");
-  }
+
+  await handleDanglingMessages(messages, chat.id, lastMessage.id);
 
   if (lastMessage.role === "Assistant" && !lastMessage.pending)
     return error(400, "Assistant already sent a message");
 
   const [llmType, llm] = dispatchLLM(chat.modelType);
   log.debug({ llmType, chatId: chat.id }, "Dispatching LLM");
-  const messageHistory = messages
-    .filter(({ content }) => content)
-    .map(({ role, content }) =>
-      role === Prisma.ChatRole.User
-        ? new HumanMessage({ content: content! })
-        : new AIMessage({ content: content! })
-    );
+  const messageHistory = createBaseMessageFromDbChat(messages);
   const lastUserMessage = messages.filter(({ role }) => role === Prisma.ChatRole.User).pop();
   log.trace({ lastUserMessage }, "Last user message");
   log.debug({ chatId: chat.id }, "Dispatching stream");
@@ -95,79 +88,25 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
       });
       events.on("done", async (data) => {
         if (data.type === "response") {
-          controller.enqueue(JSON.stringify({ type: "doneResponse" }) + "\n");
-          log.debug({ messageId: newMessage.id }, "Updating message with generated content");
-          await db.message.update({
-            where: {
-              id: newMessage.id,
-            },
-            data: {
-              content: fullMessage,
-              pending: false,
-            },
-          });
-
-          const messages = await db.message.findMany({
-            where: {
-              chatId: chat.id,
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          });
-
-          log.debug({ chatId: chat.id }, "Generating follow-up suggestions");
-          const suggestions = await generateSuggestions(
-            {
-              chat_history: messages
-                .filter(({ content }) => content)
-                .map(({ role, content }) =>
-                  role === Prisma.ChatRole.User
-                    ? new HumanMessage({ content: content! })
-                    : new AIMessage({ content: content! })
-                ),
-            },
-            llm
-          );
-          log.trace(suggestions, "Generated follow-up suggestions");
-          await db.message.update({
-            where: {
-              id: newMessage.id,
-            },
-            data: {
-              suggestions,
-            },
-          });
-
-          log.debug({ messageId: newMessage.id }, "Generating title and emoji");
-          // it's for sure defined atp
-          const titleInContext = await generateTitle(
-            llmTitle,
-            lastUserMessage!.content!,
+          const savedMessages = await handleEndResponse(
+            controller,
+            newMessage.id,
+            chat.id,
             fullMessage
           );
-          log.trace({ titleInContext }, "Title in context");
-          const title = titleInContext.split("<title>")[1]?.split("</title>")[0];
-          log.trace({ title }, "Extracted title");
-          const emojiInContext = title ? await generateEmoji(llmEmoji, title) : null;
-          log.trace(
-            { emojiInContext, lengthEmojiInContext: emojiInContext?.length },
-            "Emoji in context"
+          const baseMessages = createBaseMessageFromDbChat(savedMessages);
+
+          await handleSuggestions(chat.id, newMessage.id, llm, baseMessages);
+          await handleTitleEmojis(
+            newMessage.id,
+            lastUserMessage!.content!,
+            fullMessage,
+            chat.id,
+            controller
           );
-          const emojiSeparated = emojiInContext?.split("<emoji>")[1]?.split("</emoji>")[0];
-          const emoji = emojiInContext?.length === 1 ? emojiInContext : emojiSeparated;
-          log.trace({ emoji }, "Extracted emoji");
-          await db.chat.update({
-            where: {
-              id: chat.id,
-            },
-            data: {
-              title,
-              emoji,
-            },
-          });
-          log.debug({ messageId: newMessage.id }, "Generated title and emoji");
-          controller.enqueue(JSON.stringify({ type: "doneTitleEmoji" }));
+          await handleImages(newMessage.id, chat.id, lastUserMessage!.content!, llm, baseMessages);
+          await handleVideos(newMessage.id, chat.id, lastUserMessage!.content!, llm, baseMessages);
+
           controller.close();
         }
       });
@@ -182,6 +121,214 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
       "content-type": "text/event-stream",
     },
   });
+};
+
+const handleDanglingMessages = async (
+  messages: Prisma.Message[],
+  chatId: string,
+  lastMessageId: string
+) => {
+  if (messages.find(({ role, pending }) => role === Prisma.ChatRole.Assistant && pending)) {
+    await db.message.deleteMany({
+      where: {
+        chatId: chatId,
+        role: Prisma.ChatRole.Assistant,
+        pending: true,
+        id: {
+          not: lastMessageId,
+        },
+      },
+    });
+    log.debug({ chatId: chatId }, "Deleted dangling pending assistant messages");
+  }
+};
+
+const handleEndResponse = async (
+  controller: ReadableStreamDefaultController,
+  newMessageId: string,
+  chatId: string,
+  fullMessage: string
+) => {
+  controller.enqueue(JSON.stringify({ type: "doneResponse" }) + "\n");
+  log.debug({ messageId: newMessageId }, "Updating message with generated content");
+  await db.message.update({
+    where: {
+      id: newMessageId,
+    },
+    data: {
+      content: fullMessage,
+      pending: false,
+    },
+  });
+
+  const messages = await db.message.findMany({
+    where: {
+      chatId: chatId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return messages;
+};
+
+const handleSuggestions = async (
+  chatId: string,
+  newMessageId: string,
+  llm: ChatOllama | ChatOpenAI,
+  latestMessages: BaseMessage[]
+) => {
+  log.debug({ chatId: chatId }, "Generating follow-up suggestions");
+  const suggestions = await generateSuggestions(
+    {
+      chat_history: latestMessages,
+    },
+    llm
+  );
+  log.trace(suggestions, "Generated follow-up suggestions");
+  await db.message.update({
+    where: {
+      id: newMessageId,
+    },
+    data: {
+      suggestions,
+    },
+  });
+};
+
+const handleTitleEmojis = async (
+  newMessageId: string,
+  lastUserMessageContent: string,
+  fullMessage: string,
+  chatId: string,
+  controller: ReadableStreamDefaultController
+) => {
+  const title = await handleTitle(newMessageId, lastUserMessageContent, fullMessage);
+  const emojiInContext = title ? await generateEmoji(llmEmoji, title) : undefined;
+  log.trace({ emojiInContext, lengthEmojiInContext: emojiInContext?.length }, "Emoji in context");
+  const emojiSeparated = emojiInContext?.split("<emoji>")[1]?.split("</emoji>")[0];
+  const emoji = emojiInContext?.length === 1 ? emojiInContext : emojiSeparated;
+  log.trace({ emoji }, "Extracted emoji");
+  await db.chat.update({
+    where: {
+      id: chatId,
+    },
+    data: {
+      title,
+      emoji,
+    },
+  });
+
+  log.debug({ messageId: newMessageId }, "Generated title and emoji");
+  controller.enqueue(JSON.stringify({ type: "doneTitleEmoji" }));
+};
+
+const createBaseMessageFromDbChat = (messages: Prisma.Message[]) =>
+  messages.map(({ role, content }) =>
+    role === Prisma.ChatRole.User
+      ? new HumanMessage({ content: content! })
+      : new AIMessage({ content: content! })
+  );
+
+const handleVideos = async (
+  newMessageId: string,
+  chatId: string,
+  lastMessageContent: string,
+  llm: ChatOllama | ChatOpenAI,
+  chatHistory: BaseMessage[]
+) => {
+  const imageResponseCount = await db.videoResult.count({
+    where: {
+      chatId: chatId,
+    },
+  });
+
+  if (imageResponseCount > 0) {
+    log.debug({ messageId: newMessageId }, "Videos already exist");
+    return;
+  }
+
+  log.debug({ messageId: newMessageId }, "Searching for videos");
+  const videos = await handleVideoSearch(
+    {
+      chat_history: chatHistory,
+      query: lastMessageContent,
+    },
+    llm
+  );
+  log.trace(videos, "Videos");
+  const normalisedVideos = videos
+    .filter((video) => video)
+    // @ts-expect-error - this must exist by now
+    .map(({ thumbnail_src, iframe_src, length, views, title, url }) => ({
+      thumbnailUrl: thumbnail_src,
+      iframeSrc: iframe_src,
+      length,
+      views,
+      title,
+      url,
+      chatId: chatId,
+    }));
+  log.trace(normalisedVideos, "Normalised videos");
+  await db.videoResult.createMany({ data: normalisedVideos });
+  log.debug({ messageId: newMessageId }, "Finished searching for videos");
+};
+
+const handleImages = async (
+  newMessageId: string,
+  chatId: string,
+  lastMessageContent: string,
+  llm: ChatOllama | ChatOpenAI,
+  chatHistory: BaseMessage[]
+) => {
+  const imageResponseCount = await db.imageResult.count({
+    where: {
+      chatId: chatId,
+    },
+  });
+
+  if (imageResponseCount > 0) {
+    log.debug({ messageId: newMessageId }, "Images already exist");
+    return;
+  }
+
+  log.debug({ messageId: newMessageId }, "Searching for images");
+  const images = await handleImageSearch(
+    {
+      chat_history: chatHistory,
+      query: lastMessageContent,
+    },
+    llm
+  );
+  log.trace(images, "Images");
+  const normalisedImages = images
+    .filter((image) => image)
+    // @ts-expect-error - this must exist by now
+    .map(({ img_src, url, title, thumbnail_src, content }) => ({
+      title,
+      url,
+      imageUrl: img_src,
+      thumbnailUrl: thumbnail_src,
+      content,
+      chatId: chatId,
+    }));
+  log.trace(normalisedImages, "Normalised images");
+  await db.imageResult.createMany({ data: normalisedImages });
+  log.debug({ messageId: newMessageId }, "Finished searching for images");
+};
+
+const handleTitle = async (
+  newMessageId: string,
+  lastUserMessageContent: string,
+  fullMessage: string
+) => {
+  log.debug({ messageId: newMessageId }, "Generating title");
+  const titleInContext = await generateTitle(llmTitle, lastUserMessageContent, fullMessage);
+  log.trace({ titleInContext }, "Title in context");
+  const title = titleInContext.split("<title>")[1]?.split("</title>")[0];
+  log.trace({ title }, "Extracted title");
+  return title;
 };
 
 const handleSources = async ({ data: sources }: Sources, messageId: string) => {
@@ -275,7 +422,7 @@ interface Sources extends BaseResponse<Source[]> {
 const dispatchStream = async (
   focusMode: Prisma.FocusMode,
   messageHistory: BaseMessage[],
-  llm: ChatOllama,
+  llm: ChatOllama | ChatOpenAI,
   query: string,
   llmType: "speed" | "balanced" | "quality"
 ) => {

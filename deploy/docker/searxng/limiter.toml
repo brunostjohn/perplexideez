@@ -3,4 +3,4 @@
 
 [botdetection.ip_limit]
 # activate link_token method in the ip_limit method
-link_token = true
+link_token = false
