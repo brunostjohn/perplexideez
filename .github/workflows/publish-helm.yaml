@@ -103,6 +103,6 @@ jobs:
           mkdir -p .cr-index
           owner=$(cut -d '/' -f 1 <<< '${{ github.repository }}')
           repo=$(cut -d '/' -f 2 <<< '${{ github.repository }}')
-          cr index --git-repo "charts" --owner "brunostjohn" \
+          cr index --git-repo "perplexideez" --owner "brunostjohn" \
             --package-path '../${{ steps.package.outputs.dir }}' \
             --index-path .cr-index --push
