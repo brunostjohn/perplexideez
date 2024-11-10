@@ -27,6 +27,7 @@ jobs:
       - name: Checkout Helm chart repo
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           repository: ${{ env.CHART_REPO }}
           path: .helm-chart-repo
           token: ${{ secrets.CHART_GITHUB_TOKEN }}
