@@ -86,7 +86,7 @@ jobs:
           git config --list
           owner=$(cut -d '/' -f 1 <<< '${{ github.repository }}')
           repo=$(cut -d '/' -f 2 <<< '${{ github.repository }}')
-          cr upload --commit '${{ github.sha }}' --git-repo "$repo" --owner "$owner" --token '${{ github.token }}' \
+          cr upload --commit '${{ github.sha }}' --git-repo "$repo" --owner "$owner" --token '${{ secrets.CHART_GITHUB_TOKEN }}' \
             --package-path '${{ steps.package.outputs.dir }}' --skip-existing
 
       - name: Update charts index
