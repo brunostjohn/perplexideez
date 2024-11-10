@@ -14,6 +14,7 @@ on:
       - "prisma/**"
       - "static/**"
       - ".gitignore"
+      - ".github/workflows/build-push.yaml"
   workflow_dispatch:
 
 jobs:
