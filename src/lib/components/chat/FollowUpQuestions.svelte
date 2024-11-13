@@ -6,9 +6,10 @@
 
   interface Props {
     suggestions?: string[];
+    handleSuggestion?: (suggestion: string) => void;
   }
 
-  const { suggestions }: Props = $props();
+  const { suggestions, handleSuggestion }: Props = $props();
 
   const randomIntFromInterval = (min: number, max: number) =>
     Math.floor(Math.random() * (max - min + 1) + min);
@@ -23,10 +24,17 @@
       <li
         class="align-center group my-2 flex w-full items-center justify-between text-muted-foreground transition-all hover:text-primary"
       >
-        <p class="mr-2 text-sm">
-          {suggestion}
-        </p>
-        <Plus class="size-4 min-h-4 min-w-4" />
+        <button
+          class="contents"
+          onclick={() => {
+            handleSuggestion?.(suggestion);
+          }}
+        >
+          <p class="mr-2 text-left text-sm">
+            {suggestion}
+          </p>
+          <Plus class="size-4 min-h-4 min-w-4" />
+        </button>
       </li>
       {#if i !== suggestions.length - 1}
         <Separator class="mx-auto opacity-50" />
@@ -47,6 +55,12 @@
       <Plus class="size-4 min-h-4 min-w-4" />
     </li>
     <Separator class="mx-auto opacity-50" />
+    <li
+      class="align-center group my-2 flex w-full items-center justify-between text-muted-foreground transition-all hover:text-primary"
+    >
+      <Skeleton class="h-3" style={`width: ${randomIntFromInterval(50, 100)}%;`} />
+      <Plus class="size-4 min-h-4 min-w-4" />
+    </li>
     <li
       class="align-center group my-2 flex w-full items-center justify-between text-muted-foreground transition-all hover:text-primary"
     >

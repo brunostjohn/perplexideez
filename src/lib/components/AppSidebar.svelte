@@ -21,6 +21,7 @@
     <NavMain />
   </Sidebar.Header>
   <Sidebar.Content>
+    <NavChats isFavourites />
     <NavChats />
   </Sidebar.Content>
   <Sidebar.Footer>

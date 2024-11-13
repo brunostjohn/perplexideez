@@ -14,7 +14,7 @@
 <li
   class="flex flex-col overflow-hidden rounded-md bg-muted/50 p-4 transition-all hover:bg-muted/75"
 >
-  <a class="contents" href={source.url}>
+  <a class="contents" href={source.url} target="_blank">
     {#if source.imageUrl}
       <img
         src={source.imageUrl}

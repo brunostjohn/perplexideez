@@ -46,7 +46,7 @@
       </button>
     {/snippet}
   </Dialog.Trigger>
-  <Dialog.Content class="max-h-[80%] overflow-y-scroll">
+  <Dialog.Content class="max-h-[80%] overflow-y-auto">
     <ul class="grid grid-cols-2 flex-col gap-2 overflow-x-hidden">
       {#each sources.slice(2) as source}
         <li

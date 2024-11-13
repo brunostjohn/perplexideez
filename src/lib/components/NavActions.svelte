@@ -69,6 +69,10 @@
 
   const handleUpdateFavourite = async () => {
     await $chatFavouriteMutation?.mutate({ chatId, isFavorite: !$chatFavouriteQuery?.data });
+    const utils = trpc()?.createUtils();
+    await utils?.listChats.invalidate({ isFavourites: true });
+    await utils?.listChats.refetch({ isFavourites: true });
+    open = false;
   };
 
   let copyingLink = $state(false);
@@ -77,6 +81,7 @@
     await navigator.clipboard.writeText(window.location.href);
     copyingLink = false;
     toast.success("Link copied to clipboard.");
+    open = false;
   };
 </script>
 

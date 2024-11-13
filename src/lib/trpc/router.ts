@@ -40,6 +40,7 @@ export const router = t.router({
           },
           messages: {
             create: {
+              pending: false,
               content: query,
               role: Prisma.ChatRole.User,
             },
@@ -50,16 +51,49 @@ export const router = t.router({
       return { id: chat.id };
     }
   ),
-  listChats: t.procedure.query(
+  createMessage: t.procedure.input(z.object({ chatId: z.string(), content: z.string() })).mutation(
+    async ({
+      input: { chatId, content },
+      ctx: {
+        user: { id },
+      },
+    }) => {
+      log.debug({ chatId, content }, "Creating message");
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+          userId: id,
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      const message = await db.message.create({
+        data: {
+          chatId,
+          content,
+          role: Prisma.ChatRole.User,
+          pending: false,
+        },
+      });
+
+      return { id: message.id };
+    }
+  ),
+  listChats: t.procedure.input(z.object({ isFavourites: z.boolean() })).query(
     async ({
       ctx: {
         user: { id },
       },
+      input: { isFavourites },
     }) => {
       log.debug("Listing chats");
       const chats = await db.chat.findMany({
         where: {
           userId: id,
+          isFavorite: isFavourites ? true : undefined,
         },
         orderBy: {
           updatedAt: "desc",
@@ -112,6 +146,8 @@ export const router = t.router({
         },
         include: {
           messages: { include: { sources: true } },
+          imageResults: true,
+          videoResults: true,
         },
       });
 

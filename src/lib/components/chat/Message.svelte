@@ -1,8 +1,7 @@
 <script lang="ts">
   import { trpc } from "$lib/trpc";
-  import { FollowUpQuestions, MessageAccessories, MessageSidebar, NewMessageBox, Sources } from ".";
+  import { FollowUpQuestions, MessageAccessories, NewMessageBox, Sources } from ".";
   import { LLMMarkdownRenderer } from "..";
-  import { Separator } from "../ui/separator";
   import { useStreamedResponse } from "./hooks.svelte";
 
   interface Source {
@@ -32,10 +31,12 @@
     messagePair: MessagePair;
     chatId: string;
     isLoading: boolean;
+    messagesLength: number;
+    i: number;
   }
 
-  const { messagePair, chatId }: Props = $props();
-
+  const { messagePair, chatId, messagesLength, i }: Props = $props();
+  const isLast = $derived(i === messagesLength - 1);
   let streamedOnce = $state(false);
 
   const streamedResponse = useStreamedResponse({
@@ -56,42 +57,52 @@
     isStreaming: streamedResponse.isStreaming,
     dbContent: messagePair.aiResponse?.content,
   });
+
+  const createMessageMutation = trpc()?.createMessage.createMutation();
+
+  const handleSubmit = async (content: string) => {
+    if (!createMessageMutation || !chatId || !content?.trim()?.length) return;
+
+    await $createMessageMutation?.mutateAsync({
+      chatId,
+      content,
+    });
+    const utils = trpc()?.createUtils();
+    await utils?.chat.invalidate({ chatId });
+    await utils?.chat.refetch({ chatId });
+  };
 </script>
 
-<div class="flex h-full gap-8">
-  <div class="h-full w-[70%] pb-10">
-    <h1 class="mb-6 text-4xl font-bold">{messagePair.humanQuery.content}</h1>
+<div>
+  <h1 class="mb-6 text-4xl font-bold">{messagePair.humanQuery.content}</h1>
 
-    {#if messagePair.aiResponse || streamedResponse.isStreaming}
-      <Sources
-        isStreaming={streamedResponse.isStreaming}
-        sources={messagePair.aiResponse?.sources}
-      />
+  {#if messagePair.aiResponse || streamedResponse.isStreaming}
+    <Sources isStreaming={streamedResponse.isStreaming} sources={messagePair.aiResponse?.sources} />
 
-      <LLMMarkdownRenderer
-        isStreaming={streamedResponse.isStreaming}
-        usedSources={messagePair.aiResponse?.sources}
-        source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
+    <LLMMarkdownRenderer
+      isStreaming={streamedResponse.isStreaming}
+      usedSources={messagePair.aiResponse?.sources}
+      source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
+        ? streamedResponse.streamedContent
+        : messagePair.aiResponse?.content) ?? ""}
+    />
+
+    {#if !streamedResponse.isStreaming && messagePair.aiResponse}
+      <MessageAccessories
+        content={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
           ? streamedResponse.streamedContent
           : messagePair.aiResponse?.content) ?? ""}
       />
 
-      {#if !streamedResponse.isStreaming && messagePair.aiResponse}
-        <MessageAccessories
-          content={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
-            ? streamedResponse.streamedContent
-            : messagePair.aiResponse?.content) ?? ""}
+      {#if isLast}
+        <FollowUpQuestions
+          suggestions={messagePair.aiResponse.suggestions}
+          handleSuggestion={handleSubmit}
         />
-
-        <FollowUpQuestions suggestions={messagePair.aiResponse.suggestions} />
         <div class="mt-8 pb-10 pr-10">
-          <NewMessageBox />
+          <NewMessageBox onSubmit={handleSubmit} />
         </div>
       {/if}
     {/if}
-  </div>
-  <Separator orientation="vertical" class="mt-12 h-[32rem] max-h-[32rem] !min-h-[auto]" />
-  <div class="mt-12 w-[30%]">
-    <MessageSidebar />
-  </div>
+  {/if}
 </div>

@@ -20,12 +20,13 @@
 </script>
 
 <div class="align-center mb-6 mt-4 flex items-center justify-center gap-4 pr-10">
-  <button
+  <!-- IMPLEMENT REWRITE -->
+  <!-- <button
     class="align-center flex items-center justify-center gap-1 text-sm text-muted-foreground transition-all hover:text-primary"
   >
     <RotateCw class="size-4" />
     <p>Rewrite</p>
-  </button>
+  </button> -->
 
   <Tooltip.Root>
     <Tooltip.Trigger>
@@ -45,7 +46,7 @@
     </Tooltip.Trigger>
     <Tooltip.Content>Copy to clipboard</Tooltip.Content>
   </Tooltip.Root>
-
+  <!-- IMPLEMENT TRANSCRIPTION -->
   <!-- <button class="text-muted-foreground transition-all hover:text-primary">
     <AudioLines class="size-4" />
   </button> -->

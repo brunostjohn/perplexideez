@@ -2,7 +2,8 @@
   import type { PageServerData } from "./$types";
   import { trpc } from "$lib/trpc";
   import { reactiveQueryArgs } from "$lib/utils.svelte";
-  import { Message } from "$lib/components/chat";
+  import { Message, MessageSidebar } from "$lib/components/chat";
+  import { Separator } from "$lib/components/ui/separator";
 
   interface Props {
     data: PageServerData;
@@ -35,30 +36,45 @@
   const messagesChunked = $derived(
     $chatQuery?.data ? chunkify($chatQuery!.data!.messages, 2).toArray() : []
   );
+
+  const messagesLength = $derived(messagesChunked.length);
 </script>
 
 {#if $chatQuery?.data}
   <main class="mx-auto h-full w-full max-w-[94%] flex-col gap-2">
-    {#each messagesChunked as messages}
-      {@const humanMessage = messages.find(({ role }) => role === "User")!}
-      {@const aiMessage = messages.find(({ role }) => role === "Assistant")}
-      <Message
-        {chatId}
-        isLoading={$chatQuery.isLoading}
-        messagePair={{
-          humanQuery: { content: humanMessage?.content ?? "", role: "User" },
-          aiResponse: aiMessage
-            ? {
-                role: "Assistant",
-                content: aiMessage.content,
-                pending: aiMessage.pending ?? false,
-                id: aiMessage.id,
-                sources: aiMessage.sources,
-                suggestions: aiMessage.suggestions,
-              }
-            : undefined,
-        }}
-      />
-    {/each}
+    <div class="flex h-full flex-col gap-8 xl:flex-row-reverse">
+      <div class="mt-12 w-[30%]">
+        <MessageSidebar
+          imageResults={$chatQuery?.data.imageResults}
+          videoResults={$chatQuery?.data.videoResults}
+        />
+      </div>
+      <Separator orientation="vertical" class="mt-12 h-[32rem] max-h-[32rem] !min-h-[auto]" />
+      <div class="flex w-[70%] flex-col gap-8 pb-10">
+        {#each messagesChunked as messages, i}
+          {@const humanMessage = messages.find(({ role }) => role === "User")!}
+          {@const aiMessage = messages.find(({ role }) => role === "Assistant")}
+          <Message
+            {messagesLength}
+            {i}
+            {chatId}
+            isLoading={$chatQuery.isLoading}
+            messagePair={{
+              humanQuery: { content: humanMessage?.content ?? "", role: "User" },
+              aiResponse: aiMessage
+                ? {
+                    role: "Assistant",
+                    content: aiMessage.content,
+                    pending: aiMessage.pending ?? false,
+                    id: aiMessage.id,
+                    sources: aiMessage.sources,
+                    suggestions: aiMessage.suggestions,
+                  }
+                : undefined,
+            }}
+          />
+        {/each}
+      </div>
+    </div>
   </main>
 {/if}

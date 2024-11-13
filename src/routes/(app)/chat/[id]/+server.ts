@@ -290,13 +290,13 @@ const handleVideos = async (
   llm: ChatOllama | ChatOpenAI,
   chatHistory: BaseMessage[]
 ) => {
-  const imageResponseCount = await db.videoResult.count({
+  const videoResultCount = await db.videoResult.count({
     where: {
       chatId: chatId,
     },
   });
 
-  if (imageResponseCount > 0) {
+  if (videoResultCount > 0) {
     log.debug({ messageId: newMessageId }, "Videos already exist");
     return;
   }

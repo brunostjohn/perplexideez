@@ -30,6 +30,7 @@ const createVideoSearchChain = (llm: ChatOpenAI | ChatOllama) =>
     llm,
     stringParser,
     RunnableLambda.from(async (input: string) => {
+      log.trace({ input }, "Searching videos");
       const res = await searchSearxng(input, {
         engines: ["youtube"],
       });

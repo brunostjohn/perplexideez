@@ -78,6 +78,8 @@ You need either an OpenAI API token/OpenAI compatible API or an Ollama instance 
 - [ ] Fully support web searching
 - [ ] Shareable no-authentication links
 - [ ] Favourites on the sidebar
+- [ ] Ensure deployments work
+  - [ ] Complete Helm chart for Kubernetes deployment
 - [ ] More agents
   - [ ] Web agents
   - [ ] Self-hosted app agents

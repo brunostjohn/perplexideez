@@ -8,3 +8,5 @@ export { default as AdditionalSourcesPanel } from "./AdditionalSourcesPanel.svel
 export { default as Sources } from "./Sources.svelte";
 export { default as Message } from "./Message.svelte";
 export { default as ChatName } from "./ChatName.svelte";
+export { default as RelatedImages } from "./RelatedImages.svelte";
+export { default as RelatedVideos } from "./RelatedVideos.svelte";

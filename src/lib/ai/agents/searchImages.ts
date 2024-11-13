@@ -6,6 +6,7 @@ import type { ChatOpenAI } from "@langchain/openai";
 import { formatChatHistoryAsString } from "../utils";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { searchSearxng } from "$lib/searxng";
+import { log } from "$lib/log";
 
 const stringParser = new StringOutputParser();
 
@@ -30,6 +31,7 @@ const createImageSearchChain = (llm: ChatOpenAI | ChatOllama) =>
     llm,
     stringParser,
     RunnableLambda.from(async (input: string) => {
+      log.trace({ input }, "Searching images");
       const res = await searchSearxng(input, {
         engines: ["bing images", "google images"],
       });
