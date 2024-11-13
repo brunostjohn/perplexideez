@@ -1,4 +1,5 @@
 import { env } from "$env/dynamic/public";
+import { env as envPrivate } from "$env/dynamic/private";
 import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { signIn } from "$lib/auth";
@@ -12,7 +13,12 @@ export const load: PageServerLoad = async () => {
     },
   }) satisfies MetaTagsProps;
 
-  return { oauthName: env.PUBLIC_OIDC_NAME, pageMetaTags };
+  return {
+    oauthName: env.PUBLIC_OIDC_NAME,
+    pageMetaTags,
+    disableSignUp: envPrivate.DISABLE_SIGN_UP === "true",
+    disablePasswordLogin: envPrivate.DISABLE_PASSWORD_LOGIN === "true",
+  };
 };
 
 export const actions = { default: signIn } satisfies Actions;

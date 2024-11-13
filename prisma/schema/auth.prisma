@@ -4,6 +4,7 @@ model User {
     email                 String     @unique
     emailVerified         DateTime?
     image                 String?
+    pwHash                String?
     lastSelectedModelType ModelType?
     accounts              Account[]
     sessions              Session[]

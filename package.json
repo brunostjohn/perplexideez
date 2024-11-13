@@ -66,6 +66,7 @@
     "@prisma/client": "^5.21.1",
     "@resvg/resvg-js": "^2.6.2",
     "@trpc/server": "^10.45.2",
+    "argon2": "^0.41.1",
     "compute-cosine-similarity": "^1.1.0",
     "compute-dot": "^1.1.0",
     "cuid": "^3.0.0",

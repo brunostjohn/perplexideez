@@ -27,5 +27,9 @@
 </script>
 
 <div class="flex h-screen w-full items-center justify-center px-4">
-  <LoginForm oauthName={data.oauthName} />
+  <LoginForm
+    oauthName={data.oauthName}
+    disablePasswordLogin={data.disablePasswordLogin}
+    disableSignUp={data.disableSignUp}
+  />
 </div>
