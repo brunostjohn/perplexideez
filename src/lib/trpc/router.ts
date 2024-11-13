@@ -9,6 +9,7 @@ import { t } from "$lib/trpc/t";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { log } from "$lib/log";
+import cuid from "cuid";
 
 export const createChatSchema = z.object({
   query: z.string().min(1, "You must provide a query."),
@@ -51,6 +52,75 @@ export const router = t.router({
       return { id: chat.id };
     }
   ),
+  sharedLink: t.procedure
+    .input(z.object({ chatId: z.string() }))
+    .query(async ({ input: { chatId } }) => {
+      const chat = await db.chat.findFirst({
+        where: {
+          id: chatId,
+        },
+        select: {
+          sharedLink: true,
+        },
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      if (!chat.sharedLink) {
+        return null;
+      }
+
+      return chat.sharedLink;
+    }),
+  upsertSharedLink: t.procedure
+    .input(
+      z.object({
+        chatId: z.string(),
+        requiredAuth: z.boolean().optional(),
+        rerollId: z.boolean().optional(),
+        enabled: z.boolean().optional(),
+      })
+    )
+    .mutation(
+      async ({
+        input: { chatId, requiredAuth, rerollId = false, enabled },
+        ctx: {
+          user: { id },
+        },
+      }) => {
+        const chat = await db.chat.findFirst({
+          where: {
+            id: chatId,
+            userId: id ?? "",
+          },
+          select: { sharedLink: true },
+        });
+
+        if (!chat) {
+          throw new TRPCError({ code: "NOT_FOUND" });
+        }
+
+        const sharedLink = await db.sharedLink.upsert({
+          where: {
+            chatId,
+          },
+          update: {
+            requiredAuth,
+            id: rerollId ? cuid() : chat.sharedLink?.id,
+            enabled,
+          },
+          create: {
+            chatId,
+            requiredAuth,
+            enabled,
+          },
+        });
+
+        return sharedLink.id;
+      }
+    ),
   createMessage: t.procedure.input(z.object({ chatId: z.string(), content: z.string() })).mutation(
     async ({
       input: { chatId, content },

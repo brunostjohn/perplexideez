@@ -53,11 +53,6 @@
     enableStreaming: () => !streamedOnce,
   });
 
-  $inspect({
-    isStreaming: streamedResponse.isStreaming,
-    dbContent: messagePair.aiResponse?.content,
-  });
-
   const createMessageMutation = trpc()?.createMessage.createMutation();
 
   const handleSubmit = async (content: string) => {

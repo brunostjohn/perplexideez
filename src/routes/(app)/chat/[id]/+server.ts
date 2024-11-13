@@ -302,13 +302,10 @@ const handleVideos = async (
   }
 
   log.debug({ messageId: newMessageId }, "Searching for videos");
-  const videos = await handleVideoSearch(
-    {
-      chat_history: chatHistory,
-      query: lastMessageContent,
-    },
-    llm
-  );
+  const videos = await handleVideoSearch({
+    chat_history: chatHistory,
+    query: lastMessageContent,
+  });
   log.trace(videos, "Videos");
   const normalisedVideos = videos
     .filter((video) => video)
@@ -346,13 +343,10 @@ const handleImages = async (
   }
 
   log.debug({ messageId: newMessageId }, "Searching for images");
-  const images = await handleImageSearch(
-    {
-      chat_history: chatHistory,
-      query: lastMessageContent,
-    },
-    llm
-  );
+  const images = await handleImageSearch({
+    chat_history: chatHistory,
+    query: lastMessageContent,
+  });
   log.trace(images, "Images");
   const normalisedImages = images
     .filter((image) => image)

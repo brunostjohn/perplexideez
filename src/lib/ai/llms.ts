@@ -26,70 +26,27 @@ const commonOpenAIClientArgs: Partial<ClientOptions & LegacyOpenAIInput> = {
 
 const isOpenAI = env.LLM_MODE === "openai";
 
-export const llmSpeed = isOpenAI
-  ? new ChatOpenAI(
-      {
-        model: env.LLM_SPEED_MODEL,
-        ...commonOpenAIModelArgs,
-      },
-      commonOpenAIClientArgs
-    )
-  : new ChatOllama({
-      model: env.LLM_SPEED_MODEL,
-      ...commonOllamaModelArgs,
-    });
+const createLLM = (model: string) =>
+  isOpenAI
+    ? new ChatOpenAI(
+        {
+          model,
+          ...commonOpenAIModelArgs,
+        },
+        commonOpenAIClientArgs
+      )
+    : new ChatOllama({
+        model,
+        ...commonOllamaModelArgs,
+      });
 
-export const llmBalanced = isOpenAI
-  ? new ChatOpenAI(
-      {
-        model: env.LLM_BALANCED_MODEL,
-        ...commonOpenAIModelArgs,
-      },
-      commonOpenAIClientArgs
-    )
-  : new ChatOllama({
-      model: env.LLM_BALANCED_MODEL,
-      ...commonOllamaModelArgs,
-    });
-
-export const llmQuality = isOpenAI
-  ? new ChatOpenAI(
-      {
-        model: env.LLM_QUALITY_MODEL,
-        ...commonOpenAIModelArgs,
-      },
-      commonOpenAIClientArgs
-    )
-  : new ChatOllama({
-      model: env.LLM_QUALITY_MODEL,
-      ...commonOllamaModelArgs,
-    });
-
-export const llmEmoji = isOpenAI
-  ? new ChatOpenAI(
-      {
-        model: env.LLM_EMOJI_MODEL,
-        ...commonOpenAIModelArgs,
-      },
-      commonOpenAIClientArgs
-    )
-  : new ChatOllama({
-      model: env.LLM_EMOJI_MODEL,
-      ...commonOllamaModelArgs,
-    });
-
-export const llmTitle = isOpenAI
-  ? new ChatOpenAI(
-      {
-        model: env.LLM_TITLE_MODEL,
-        ...commonOpenAIModelArgs,
-      },
-      commonOpenAIClientArgs
-    )
-  : new ChatOllama({
-      model: env.LLM_TITLE_MODEL,
-      ...commonOllamaModelArgs,
-    });
+export const llmSpeed = createLLM(env.LLM_SPEED_MODEL);
+export const llmBalanced = createLLM(env.LLM_BALANCED_MODEL);
+export const llmQuality = createLLM(env.LLM_QUALITY_MODEL);
+export const llmEmoji = createLLM(env.LLM_EMOJI_MODEL);
+export const llmTitle = createLLM(env.LLM_TITLE_MODEL);
+export const llmImageSearch = createLLM(env.LLM_IMAGE_SEARCH_MODEL);
+export const llmVideoSearch = createLLM(env.LLM_VIDEO_SEARCH_MODEL);
 
 export const ollama = !isOpenAI
   ? new Ollama({

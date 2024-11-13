@@ -62,7 +62,7 @@
               {#snippet child({ props })}
                 <a href={`/chat/${item.id}`} title={item.title} {...props}>
                   {#if item.emoji}
-                    <span>{item.emoji}</span>
+                    <span class="emoji">{item.emoji}</span>
                   {/if}
                   <span>{item.title}</span>
                 </a>
@@ -120,3 +120,14 @@
     </Sidebar.Menu>
   </Sidebar.Group>
 {/if}
+
+<style>
+  @font-face {
+    font-family: "Apple Color Emoji";
+    src: url("/AppleColorEmoji.ttf") format("truetype");
+  }
+
+  .emoji {
+    font-family: "Apple Color Emoji";
+  }
+</style>

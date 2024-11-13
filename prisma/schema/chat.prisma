@@ -10,18 +10,19 @@ model Chat {
     modelType    ModelType
     imageResults ImageResult[]
     videoResults VideoResult[]
-    sharedLinks  SharedLink[]
-    user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    sharedLink   SharedLink?
+    user         User          @relation(fields: [userId], references: [id])
     messages     Message[]
 }
 
 model SharedLink {
-    id           String    @id @unique @default(cuid())
-    createdAt    DateTime  @default(now())
-    shredBy      DateTime?
-    chatId       String
-    requiredAuth Boolean
-    chat         Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+    id           String   @id @unique @default(cuid())
+    createdAt    DateTime @default(now())
+    requiredAuth Boolean  @default(true)
+    enabled      Boolean  @default(true)
+    chatId       String   @unique
+    views        Int      @default(0)
+    chat         Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
 model Message {

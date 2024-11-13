@@ -56,7 +56,7 @@
     {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content class="min-w-56">
-    <DropdownMenu.Group>
+    <!-- <DropdownMenu.Group>
       <DropdownMenu.GroupHeading>My Account</DropdownMenu.GroupHeading>
       <DropdownMenu.Separator />
       <DropdownMenu.Group>
@@ -66,7 +66,7 @@
         </DropdownMenu.Item>
       </DropdownMenu.Group>
     </DropdownMenu.Group>
-    <DropdownMenu.Separator />
+    <DropdownMenu.Separator /> -->
     <DropdownMenu.Group>
       <DropdownMenu.Item onSelect={handleSignOut}>
         <LogOut class="mr-2 size-4" />

@@ -7,7 +7,7 @@ import { createContext } from "$lib/trpc/context";
 import { log } from "$lib/log";
 import { createMetricsServer } from "$lib/metrics";
 
-const ALLOWED_UNAUTHENTICATED_PATHS = ["/auth", "/api/auth"];
+const ALLOWED_UNAUTHENTICATED_PATHS = ["/auth", "/api/auth", "/shared/"];
 const METRICS_SERVER = createMetricsServer();
 
 export const handle: Handle = sequence(
@@ -39,8 +39,6 @@ export const handle: Handle = sequence(
   }
 );
 
-export const handleError: Handle = async ({ event, resolve }) => {
-  log.error(event, "Error");
-
-  return resolve(event);
+export const handleError = async ({ event, error }) => {
+  log.error({ event, error }, "Error");
 };

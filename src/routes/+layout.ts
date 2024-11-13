@@ -1,4 +1,5 @@
 import type { LayoutLoad } from "./$types";
+import { env as envPublic } from "$env/dynamic/public";
 import { browser } from "$app/environment";
 import { QueryClient } from "@tanstack/svelte-query";
 import { type MetaTagsProps } from "svelte-meta-tags";
@@ -29,12 +30,12 @@ export const load: LayoutLoad = async ({ url }) => {
       siteName: "Perplexideez",
       images: [
         {
-          url: "https://www.example.ie/og-image.jpg",
-          alt: "Og Image Alt",
-          width: 800,
-          height: 600,
-          secureUrl: "https://www.example.ie/og-image.jpg",
-          type: "image/jpeg",
+          url: `${envPublic.PUBLIC_BASE_URL}/og-image.png`,
+          alt: "Perplexideez",
+          width: 1200,
+          height: 630,
+          secureUrl: `${envPublic.PUBLIC_BASE_URL}/og-image.png`,
+          type: "image/png",
         },
       ],
     },

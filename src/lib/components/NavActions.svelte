@@ -3,12 +3,14 @@
   import * as Popover from "$lib/components/ui/popover";
   import * as Sidebar from "$lib/components/ui/sidebar";
   import * as Tooltip from "$lib/components/ui/tooltip";
+  import * as Dialog from "$lib/components/ui/dialog";
   import { ExternalLink, Ellipsis, Star, Link, Trash, LoaderCircle } from "lucide-svelte";
   import DeleteChat from "./chatActions/DeleteChat.svelte";
   import { trpc } from "$lib/trpc";
   import { reactiveQueryArgs } from "$lib/utils.svelte";
   import moment from "moment";
   import { toast } from "svelte-sonner";
+  import ShareDialogContent from "./ShareDialogContent.svelte";
 
   interface Props {
     chatId: string;
@@ -146,9 +148,18 @@
             <Sidebar.GroupContent class="gap-0">
               <Sidebar.Menu>
                 <Sidebar.MenuItem>
-                  <Sidebar.MenuButton>
-                    <ExternalLink /> <span>Share</span>
-                  </Sidebar.MenuButton>
+                  <Dialog.Root>
+                    <Dialog.Trigger>
+                      {#snippet child({ props })}
+                        <Sidebar.MenuButton {...props}>
+                          <ExternalLink /> <span>Share</span>
+                        </Sidebar.MenuButton>
+                      {/snippet}
+                    </Dialog.Trigger>
+                    <Dialog.Content>
+                      <ShareDialogContent {chatId} />
+                    </Dialog.Content>
+                  </Dialog.Root>
                 </Sidebar.MenuItem>
                 <Sidebar.MenuItem>
                   <Sidebar.MenuButton onclick={handleCopyLink} disabled={copyingLink}>
