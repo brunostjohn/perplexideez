@@ -72,6 +72,8 @@
     const utils = trpc()?.createUtils();
     await utils?.listChats.invalidate({ isFavourites: true });
     await utils?.listChats.refetch({ isFavourites: true });
+    await utils?.listChats.invalidate({ isFavourites: false });
+    await utils?.listChats.refetch({ isFavourites: false });
     open = false;
   };
 

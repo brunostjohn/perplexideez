@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as HoverCard from "$lib/components/ui/hover-card";
+  import SmartImageLoader from "../chat/SmartImageLoader.svelte";
 
   interface Source {
     imageUrl?: string | null;
@@ -18,26 +19,27 @@
   const rawTrimmed = $derived(raw.slice(1, -1));
 </script>
 
-{#if source}
-  <HoverCard.Root>
-    <HoverCard.Trigger
-      href={source.url}
-      target="_blank"
-      class="rounded-sm align-sub text-xs text-muted-foreground underline decoration-transparent underline-offset-4 hover:decoration-muted focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black"
-      rel="noreferrer noopener"
-    >
-      {rawTrimmed}
-    </HoverCard.Trigger>
-    <HoverCard.Content
-      class="w-64 bg-transparent backdrop-blur-lg backdrop-brightness-50 backdrop-saturate-150"
-    >
+<HoverCard.Root>
+  <HoverCard.Trigger
+    href={source?.url}
+    target="_blank"
+    class="inline rounded-sm align-sub text-xs text-muted-foreground underline decoration-transparent underline-offset-4 hover:decoration-muted focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-black"
+    rel="noreferrer noopener"
+  >
+    {rawTrimmed}
+  </HoverCard.Trigger>
+  <HoverCard.Content
+    class="w-64 bg-transparent backdrop-blur-lg backdrop-brightness-50 backdrop-saturate-150"
+  >
+    {#if source}
       <a class="contents" href={source.url}>
         <div class="flex flex-col">
           {#if source.imageUrl}
-            <img
+            <SmartImageLoader
               src={source.imageUrl}
-              alt="abcd"
-              class="mb-2 h-32 w-full rounded-md bg-muted object-cover"
+              alt={source.title}
+              class="mb-2 h-32 w-full rounded-md bg-muted"
+              imageClass="object-cover"
             />
           {/if}
 
@@ -45,10 +47,11 @@
             {source.title}
           </p>
           <div class="align-center flex items-center gap-1">
-            <img
+            <SmartImageLoader
               src={source.faviconUrl}
-              alt="abcd"
-              class="aspect-square h-4 w-4 rounded-full object-cover"
+              alt={`${new URL(source.url).host.replace("www.", "")} favicon`}
+              class="aspect-square h-4 w-4 rounded-full"
+              imageClass="object-cover"
             />
             <p class="text-sm text-muted-foreground">
               {new URL(source.url).host.replace("www.", "")}
@@ -56,6 +59,8 @@
           </div>
         </div>
       </a>
-    </HoverCard.Content>
-  </HoverCard.Root>
-{/if}
+    {:else}
+      <p class="text-muted-foreground">Sources loading...</p>
+    {/if}
+  </HoverCard.Content>
+</HoverCard.Root>

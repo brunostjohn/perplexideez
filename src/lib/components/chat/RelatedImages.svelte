@@ -1,31 +1,40 @@
 <script lang="ts">
   import type { ImageResult } from "@prisma/client";
+  import { onDestroy } from "svelte";
+  import { createMediaStore } from "svelte-media-queries";
+  import SmartImageLoader from "./SmartImageLoader.svelte";
 
   interface Props {
     results: ImageResult[];
   }
 
   const { results }: Props = $props();
+  const matches = createMediaStore("(min-width: 1280px)");
+
+  onDestroy(() => {
+    matches.destroy();
+  });
 </script>
 
-<div class="mb-6 grid grid-cols-2 gap-2">
+<div class="grid grid-cols-4 gap-2 overflow-hidden xl:grid-cols-2 xl:pr-4">
   {#each results.slice(0, 3) as result}
-    <img
+    <SmartImageLoader
       src={result.thumbnailUrl}
-      loading="lazy"
       alt={result.title}
-      class="aspect-video rounded-md object-cover transition-all hover:scale-[103%]"
+      class="group aspect-video h-full w-full rounded-md transition-all"
+      imageClass="group-hover:scale-[103%] object-cover"
     />
   {/each}
   {#if results.length > 3}
     <div
-      class="grid aspect-video grid-cols-3 grid-rows-2 gap-1 overflow-hidden rounded-md bg-muted p-1.5 transition-all hover:scale-[103%]"
+      class="grid aspect-video grid-cols-4 grid-rows-2 gap-1 overflow-hidden rounded-md bg-muted p-1.5 transition-all hover:scale-[103%] xl:grid-cols-3"
     >
-      {#each results.slice(3, 6) as result}
-        <img
+      {#each results.slice(3, $matches ? 6 : 10) as result}
+        <SmartImageLoader
           src={result.thumbnailUrl}
           alt={result.title}
-          class="h-full w-full rounded-md object-cover"
+          class="h-full w-full rounded-md"
+          imageClass="object-cover"
         />
       {/each}
       {#if results.length > 6}
@@ -33,7 +42,7 @@
           class="align-center flex h-full w-full items-center justify-center rounded-md p-0.5 text-muted"
         >
           <div
-            class="align-center flex aspect-square h-full w-auto items-center justify-center rounded-full bg-muted-foreground/20 p-0.5"
+            class="align-center flex aspect-square h-full max-h-8 w-auto max-w-8 items-center justify-center rounded-full bg-muted-foreground/20 p-0.5"
           >
             <p class="text-center text-xs text-muted-foreground">+{results.length - 6}</p>
           </div>

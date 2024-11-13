@@ -18,7 +18,7 @@
 <MessageSectionTitle icon={MessageCircleQuestion} isLoading={!suggestions?.length}
   >Follow Up</MessageSectionTitle
 >
-<ul class="align-center group flex flex-col items-start justify-center gap-2 pr-10">
+<ul class="align-center group flex w-full flex-col items-start justify-center gap-2">
   {#if suggestions?.length}
     {#each suggestions as suggestion, i}
       <li

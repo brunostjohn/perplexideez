@@ -19,7 +19,7 @@
   const { content }: Props = $props();
 </script>
 
-<div class="align-center mb-6 mt-4 flex items-center justify-center gap-4 pr-10">
+<div class="align-center mb-6 mt-4 flex items-center justify-center gap-4">
   <!-- IMPLEMENT REWRITE -->
   <!-- <button
     class="align-center flex items-center justify-center gap-1 text-sm text-muted-foreground transition-all hover:text-primary"

@@ -36,7 +36,7 @@
     <header
       class={cn(
         "absolute left-0 top-0 z-[1] flex h-14 w-full shrink-0 items-center gap-2 bg-transparent backdrop-blur-lg backdrop-saturate-150",
-        isScrollDivScrolledToTop ? "" : "backdrop-brightness-50"
+        isScrollDivScrolledToTop ? "" : "backdrop-brightness-[40%]"
       )}
     >
       <div class="flex flex-1 items-center gap-2 px-3">

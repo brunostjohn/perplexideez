@@ -60,7 +60,7 @@
   isLoading={isStreaming}
   opacity={isStreaming || source.trim() !== "" ? 1 : 0}>Answer</MessageSectionTitle
 >
-<div class={cn("flex flex-col gap-2 pr-10", isStreaming ? "pb-10" : "")}>
+<div class={cn("flex flex-col gap-2", isStreaming ? "pb-10" : "")}>
   {#key source}
     <SvelteMarkdown {source} {renderers} {options} />
   {/key}

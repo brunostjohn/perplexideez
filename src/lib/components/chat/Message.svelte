@@ -99,7 +99,7 @@
           suggestions={messagePair.aiResponse.suggestions}
           handleSuggestion={handleSubmit}
         />
-        <div class="mt-8 pb-10 pr-10">
+        <div class="mt-8 pb-10">
           <NewMessageBox onSubmit={handleSubmit} />
         </div>
       {/if}

@@ -147,6 +147,9 @@ importers:
       svelte-check:
         specifier: ^4.0.0
         version: 4.0.5(picomatch@4.0.2)(svelte@5.1.9)(typescript@5.6.3)
+      svelte-media-queries:
+        specifier: ^1.6.2
+        version: 1.6.2
       svelte-meta-tags:
         specifier: ^4.0.4
         version: 4.0.4(svelte@5.1.9)(typescript@5.6.3)
@@ -1967,6 +1970,9 @@ packages:
     resolution: {integrity: sha512-pOlLY6EruKJaWI9my/2bKX8PdTeP5CM0s4VMmwmC2prlOkjAf+AOmTM4wW/l19Y6WZ87YmP8+ZCJCCwBChWjYw==}
     peerDependencies:
       svelte: ^4.0.0
+
+  svelte-media-queries@1.6.2:
+    resolution: {integrity: sha512-SMz6od/vIeZEGlc4P0HKJK4G0fZotuwFhCSpBQaPqh75h6sL6sNf+4+IjbegFKXbP7b+SOfyzVOIMXTr8jynkA==}
 
   svelte-meta-tags@4.0.4:
     resolution: {integrity: sha512-i0vgxGreM3lXTTxLSuPQLE1n56KAFACHWIXRj7fJCTpd/5D16O97Ha/OXDZS4Lsk+D347VEK4LeMoacsftbeKw==}
@@ -3901,6 +3907,8 @@ snapshots:
       '@types/marked': 5.0.2
       marked: 5.1.2
       svelte: 5.1.9
+
+  svelte-media-queries@1.6.2: {}
 
   svelte-meta-tags@4.0.4(svelte@5.1.9)(typescript@5.6.3):
     dependencies:

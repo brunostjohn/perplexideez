@@ -93,7 +93,7 @@ export const router = t.router({
       const chats = await db.chat.findMany({
         where: {
           userId: id,
-          isFavorite: isFavourites ? true : undefined,
+          isFavorite: isFavourites ? true : false,
         },
         orderBy: {
           updatedAt: "desc",
