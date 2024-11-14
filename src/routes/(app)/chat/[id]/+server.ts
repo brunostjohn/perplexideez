@@ -152,7 +152,7 @@ const handleResponseData = (
   }
   if (data.type === "sources") {
     handleSources(data, newMessageId)
-      .then(() => controller.enqueue(JSON.stringify({ type: "doneSources" })))
+      .then(() => controller.enqueue(JSON.stringify({ type: "doneSources" }) + "\n"))
       .catch(console.error);
   }
 };
