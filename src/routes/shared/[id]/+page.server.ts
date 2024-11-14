@@ -95,6 +95,7 @@ const __getChat = async (sharedLinkId: string, views: number) => {
             },
           },
         },
+        orderBy: { createdAt: "asc" },
         where: { pending: false },
       },
       imageResults: true,

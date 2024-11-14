@@ -27,7 +27,7 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
       userId: session.user.id,
     },
     include: {
-      messages: true,
+      messages: { orderBy: { createdAt: "asc" } },
       imageResults: true,
       videoResults: true,
     },
@@ -223,7 +223,7 @@ const handleEndResponse = async (
       chatId: chatId,
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 

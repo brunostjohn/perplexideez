@@ -215,7 +215,7 @@ export const router = t.router({
           userId: id,
         },
         include: {
-          messages: { include: { sources: true } },
+          messages: { include: { sources: true }, orderBy: { createdAt: "asc" } },
           imageResults: true,
           videoResults: true,
         },
