@@ -27,6 +27,8 @@ if (!hasOIDCEnvVariables) {
   log.warn("No OIDC env variables are set, only password login will be enabled.");
 }
 
+const disableCredentials = env.DISABLE_PASSWORD_LOGIN === "true";
+
 const adapter = PrismaAdapter(db);
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
@@ -45,37 +47,41 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
           },
         ]
       : []),
-    Credentials({
-      credentials: {
-        email: {},
-        password: {},
-      },
-      authorize: async (credentials) => {
-        if (env.DISABLE_PASSWORD_LOGIN === "true") {
-          throw new Error("Password login is disabled");
-        }
-        const { email, password } = await passwordAuthLoginFormSchema.parseAsync(credentials);
+    ...(disableCredentials
+      ? []
+      : [
+          Credentials({
+            credentials: {
+              email: {},
+              password: {},
+            },
+            authorize: async (credentials) => {
+              if (env.DISABLE_PASSWORD_LOGIN === "true") {
+                throw new Error("Password login is disabled");
+              }
+              const { email, password } = await passwordAuthLoginFormSchema.parseAsync(credentials);
 
-        const user = await db.user.findFirst({
-          where: {
-            email,
-          },
-        });
-        if (!user?.pwHash) {
-          log.trace(user);
-          log.warn(`User ${email} tried to sign in but has no password hash, rejecting`);
-          return null;
-        }
-        if (user.pwHash && (await verify(user.pwHash, password))) {
-          log.trace(user, `User ${email} signed in`);
-          return user;
-        }
+              const user = await db.user.findFirst({
+                where: {
+                  email,
+                },
+              });
+              if (!user?.pwHash) {
+                log.trace(user);
+                log.warn(`User ${email} tried to sign in but has no password hash, rejecting`);
+                return null;
+              }
+              if (user.pwHash && (await verify(user.pwHash, password))) {
+                log.trace(user, `User ${email} signed in`);
+                return user;
+              }
 
-        log.warn(`User ${email} tried to sign in but the password was incorrect`);
+              log.warn(`User ${email} tried to sign in but the password was incorrect`);
 
-        return null;
-      },
-    }),
+              return null;
+            },
+          }),
+        ]),
   ],
   pages: {
     signIn: "/auth",
