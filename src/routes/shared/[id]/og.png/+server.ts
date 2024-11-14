@@ -7,7 +7,7 @@ export const GET = async ({ params: { id } }) => {
   try {
     const chat = await db.chat.findFirst({
       where: {
-        id,
+        sharedLink: { id },
       },
       select: {
         imageResults: { select: { imageUrl: true }, take: 1 },
@@ -19,9 +19,11 @@ export const GET = async ({ params: { id } }) => {
           take: 1,
           orderBy: { createdAt: "desc" },
         },
+        sharedLink: { select: { requiredAuth: true } },
       },
     });
     if (!chat) return error(404, "Share not found");
+    if (chat.sharedLink?.requiredAuth) return error(401, "Unauthorized");
     const emoji = chat.emoji ? await resolveEmoji(chat.emoji) : undefined;
     return await componentToPng({
       component: OGImageShared,
