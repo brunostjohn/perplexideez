@@ -1,5 +1,15 @@
 replicaCount: 1
 
+searxng:
+  enabled: true
+  env:
+    INSTANCE_NAME: "my-instance"
+    BASE_URL: "http://localhost:8080/"
+    AUTOCOMPLETE: "false"
+
+envFrom: {}
+env: {}
+
 image:
   tag: "latest"
 
@@ -34,10 +44,18 @@ ingress:
 
 resources: {}
 
+startupProbe:
+  enabled: true
+  custom: false
+  spec: {}
 livenessProbe:
   enabled: true
+  custom: false
+  spec: {}
 readinessProbe:
+  custom: false
   enabled: true
+  spec: {}
 
 volumes: []
 volumeMounts: []
