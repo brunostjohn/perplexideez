@@ -3,19 +3,25 @@
   import * as Card from "$lib/components/ui/card/index.js";
   import { LoaderCircle } from "lucide-svelte";
   import { signIn } from "@auth/sveltekit/client";
-  import Input from "./ui/input/input.svelte";
-  import Label from "./ui/label/label.svelte";
-  import Separator from "./ui/separator/separator.svelte";
-  import Icon from "./Icon.svelte";
-  import { cn } from "$lib/utils";
+  import Separator from "$lib/components/ui/separator/separator.svelte";
+  import Icon from "$lib/components/Icon.svelte";
+  import type { Infer, SuperValidated } from "sveltekit-superforms";
+  import type { PasswordAuthLoginFormSchema } from "./passwordAuthLoginFormSchema";
+  import PasswordAuthLoginForm from "./PasswordAuthLoginForm.svelte";
 
   interface Props {
     oauthName: string;
     disableSignUp?: boolean;
     disablePasswordLogin?: boolean;
+    formValidated: SuperValidated<Infer<PasswordAuthLoginFormSchema>> | null;
   }
 
-  const { oauthName, disableSignUp = false, disablePasswordLogin = false }: Props = $props();
+  const {
+    oauthName,
+    disableSignUp = false,
+    disablePasswordLogin = false,
+    formValidated,
+  }: Props = $props();
 
   let isLoading = $state(false);
 
@@ -35,16 +41,10 @@
     <Card.Description>Please sign in to continue.</Card.Description>
   </Card.Header>
   <Card.Content>
-    {#if !disablePasswordLogin}
-      <form class={cn(disableSignUp ? "mb-6" : "mb-2")}>
-        <Label for="email">Email</Label>
-        <Input type="email" placeholder="Email" class="mb-2 mt-1" />
-        <Label for="password">Password</Label>
-        <Input type="password" placeholder="Password" class="mb-4 mt-1" />
-        <Button type="submit" class="w-full">Sign in</Button>
-      </form>
+    {#if !disablePasswordLogin && formValidated}
+      <PasswordAuthLoginForm {formValidated} disabled={isLoading} />
       {#if !disableSignUp}
-        <Button class="mb-4 w-full" variant="ghost">Create an account</Button>
+        <Button class="mb-4 w-full" variant="ghost" href="/auth/signUp">Create an account</Button>
       {/if}
       <div class="align-center mb-6 flex w-full items-center justify-between overflow-hidden">
         <Separator class="w-[45%]" />

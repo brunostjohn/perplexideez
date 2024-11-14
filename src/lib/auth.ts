@@ -5,56 +5,120 @@ import { db } from "$lib/db";
 import { env } from "$env/dynamic/private";
 import { env as envPublic } from "$env/dynamic/public";
 import { verify } from "argon2";
+import { passwordAuthLoginFormSchema } from "./components/auth";
+import { log } from "./log";
+import { encode as defaultEncode } from "@auth/core/jwt";
+import cuid from "cuid";
+
+if (!env.RATE_LIMIT_SECRET) {
+  log.error("RATE_LIMIT_SECRET is not set");
+  process.exit(1);
+}
+
+const hasOIDCEnvVariables =
+  envPublic.PUBLIC_OIDC_NAME && env.OIDC_ISSUER && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET;
+
+if (!hasOIDCEnvVariables && env.DISABLE_PASSWORD_LOGIN === "true") {
+  log.error("No auth methods are enabled");
+  process.exit(1);
+}
+
+if (!hasOIDCEnvVariables) {
+  log.warn("No OIDC env variables are set, only password login will be enabled.");
+}
+
+const adapter = PrismaAdapter(db);
 
 export const { handle, signIn, signOut } = SvelteKitAuth({
-  adapter: PrismaAdapter(db),
+  adapter,
   trustHost: true,
   providers: [
-    {
-      id: "generic-oauth",
-      name: envPublic.PUBLIC_OIDC_NAME!,
-      type: (env.OIDC_TYPE as "oauth" | "oidc") ?? "oidc",
-      issuer: env.OIDC_ISSUER,
-      clientId: env.OIDC_CLIENT_ID,
-      clientSecret: env.OIDC_CLIENT_SECRET,
-    },
+    ...(hasOIDCEnvVariables
+      ? [
+          {
+            id: "generic-oauth",
+            name: envPublic.PUBLIC_OIDC_NAME!,
+            type: (env.OIDC_TYPE as "oauth" | "oidc") ?? "oidc",
+            issuer: env.OIDC_ISSUER,
+            clientId: env.OIDC_CLIENT_ID,
+            clientSecret: env.OIDC_CLIENT_SECRET,
+          },
+        ]
+      : []),
     Credentials({
       credentials: {
         email: {},
         password: {},
       },
-      authorize: async ({ email, password }) => {
+      authorize: async (credentials) => {
         if (env.DISABLE_PASSWORD_LOGIN === "true") {
           throw new Error("Password login is disabled");
         }
+        const { email, password } = await passwordAuthLoginFormSchema.parseAsync(credentials);
 
-        if (typeof password !== "string" || typeof email !== "string") {
-          throw new Error("Invalid email or password");
-        }
         const user = await db.user.findFirst({
           where: {
             email,
           },
         });
-        if (!user?.pwSalt) throw new Error("Invalid email or password");
-        if (user.pwHash && (await verify(user.pwHash, password))) return user;
+        if (!user?.pwHash) {
+          log.trace(user);
+          log.warn(`User ${email} tried to sign in but has no password hash, rejecting`);
+          return null;
+        }
+        if (user.pwHash && (await verify(user.pwHash, password))) {
+          log.trace(user, `User ${email} signed in`);
+          return user;
+        }
 
-        throw new Error("Invalid email or password");
+        log.warn(`User ${email} tried to sign in but the password was incorrect`);
+
+        return null;
       },
     }),
   ],
   pages: {
-    signIn: `${envPublic.PUBLIC_BASE_URL}/auth`,
+    signIn: "/auth",
   },
   logger: {
-    error: console.error,
-    warn: console.warn,
-    info: console.info,
+    error: (error) => log.error(error, "Error in auth"),
+    warn: (code) => log.warn(code, "Warning in auth"),
+    info: (info: any) => log.info(info, "Info in auth"),
   },
   callbacks: {
     // @ts-expect-error - cba to fix this
     session: async ({ session, user }) => {
       return { session, user };
+    },
+    jwt: async ({ token, user, account }) => {
+      if (account?.provider === "credentials") {
+        token.credentials = true;
+      }
+      return token;
+    },
+  },
+  jwt: {
+    encode: async function (params) {
+      if (params.token?.credentials) {
+        const sessionToken = cuid();
+
+        if (!params.token.sub) {
+          throw new Error("No user ID found in token");
+        }
+
+        const createdSession = await adapter?.createSession?.({
+          sessionToken: sessionToken,
+          userId: params.token.sub,
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        });
+
+        if (!createdSession) {
+          throw new Error("Failed to create session");
+        }
+
+        return sessionToken;
+      }
+      return defaultEncode(params);
     },
   },
 });

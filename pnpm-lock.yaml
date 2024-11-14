@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@auth/core':
+        specifier: ^0.37.3
+        version: 0.37.3
       '@auth/prisma-adapter':
         specifier: ^2.7.3
         version: 2.7.3(@prisma/client@5.21.1(prisma@5.21.1))
@@ -174,6 +177,9 @@ importers:
       svelte-sonner:
         specifier: ^0.3.28
         version: 0.3.28(svelte@5.1.9)
+      sveltekit-rate-limiter:
+        specifier: ^0.6.1
+        version: 0.6.1(@sveltejs/kit@2.7.4(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))
       sveltekit-superforms:
         specifier: ^2.20.0
         version: 2.20.0(@sveltejs/kit@2.7.4(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(@types/json-schema@7.0.15)(svelte@5.1.9)(typescript@5.6.3)
@@ -430,6 +436,10 @@ packages:
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
+    engines: {node: '>=12'}
+
+  '@isaacs/ttlcache@1.4.1':
+    resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
     engines: {node: '>=12'}
 
   '@jridgewell/gen-mapping@0.3.5':
@@ -2172,6 +2182,11 @@ packages:
     resolution: {integrity: sha512-nzq+PPKGS2PoEWDjAcXSrKSbXmmmOAxd6dAz1IhRusUpVkFS6DMELWPyBPGwu6TpO/gsgtFXwX0M4+pAR5gzKw==}
     engines: {node: '>=18'}
 
+  sveltekit-rate-limiter@0.6.1:
+    resolution: {integrity: sha512-5b0ZAuJsGeFt3k8qe+SvPZXeg8f0XVcnUnL/5cOZVh1tLoi8NE9bDOtAkGN3L+66hjSkbBayhd7FVyjN4DV7pw==}
+    peerDependencies:
+      '@sveltejs/kit': 1.x || 2.x
+
   sveltekit-superforms@2.20.0:
     resolution: {integrity: sha512-5HyA6THKFBHEmJinZ/klu2/0jYr9ElSaXMYc5EO9ptP3x1wQPWVXYl59sMcaSrIjWUlPpayGxVppCyu+x/o4WA==}
     peerDependencies:
@@ -2609,6 +2624,8 @@ snapshots:
       strip-ansi-cjs: strip-ansi@6.0.1
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
+
+  '@isaacs/ttlcache@1.4.1': {}
 
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
@@ -4262,6 +4279,11 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.12
       zimmerframe: 1.1.2
+
+  sveltekit-rate-limiter@0.6.1(@sveltejs/kit@2.7.4(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7))):
+    dependencies:
+      '@isaacs/ttlcache': 1.4.1
+      '@sveltejs/kit': 2.7.4(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7))
 
   sveltekit-superforms@2.20.0(@sveltejs/kit@2.7.4(@sveltejs/vite-plugin-svelte@4.0.0(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(svelte@5.1.9)(vite@5.4.10(@types/node@22.8.7)))(@types/json-schema@7.0.15)(svelte@5.1.9)(typescript@5.6.3):
     dependencies:

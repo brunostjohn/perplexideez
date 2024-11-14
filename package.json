@@ -45,6 +45,7 @@
     "svelte-media-queries": "^1.6.2",
     "svelte-meta-tags": "^4.0.4",
     "svelte-sonner": "^0.3.28",
+    "sveltekit-rate-limiter": "^0.6.1",
     "sveltekit-superforms": "^2.20.0",
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.2.1",
@@ -58,6 +59,7 @@
   },
   "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4",
   "dependencies": {
+    "@auth/core": "^0.37.3",
     "@auth/prisma-adapter": "^2.7.3",
     "@auth/sveltekit": "^1.7.3",
     "@langchain/core": "^0.3.17",

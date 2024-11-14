@@ -30,11 +30,11 @@ export const handle: Handle = sequence(
     }
 
     if (pathname === "/") {
-      log.info("unauthenticated user redirected to /auth");
+      log.trace({ pathname }, "unauthenticated user redirected to /auth");
       return redirect(307, "/auth");
     }
 
-    log.info({ pathname }, "unauthenticated user redirected to /auth");
+    log.trace({ pathname }, "unauthenticated user redirected to /auth");
     return redirect(307, `/auth?redirect=${encodeURIComponent(pathname)}&protected=true`);
   }
 );

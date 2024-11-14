@@ -1,11 +1,12 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import LoginForm from "$lib/components/LoginForm.svelte";
+  import { LoginForm } from "$lib/components/auth";
   import { toast } from "svelte-sonner";
   import type { PageServerData } from "./$types";
 
   const hasRedirected = $derived($page.url.searchParams.get("protected") === "true");
   const hasSignedOut = $derived($page.url.searchParams.get("signedOut") === "true");
+  const disabledAuthMethod = $derived($page.url.searchParams.get("disabledAuthMethod") === "true");
 
   $effect(() => {
     if (!hasRedirected) return;
@@ -17,6 +18,12 @@
     if (!hasSignedOut) return;
 
     toast.success("You have been signed out.");
+  });
+
+  $effect(() => {
+    if (!disabledAuthMethod) return;
+
+    toast.error("This authentication method has been disabled.");
   });
 
   interface Props {
@@ -31,5 +38,6 @@
     oauthName={data.oauthName}
     disablePasswordLogin={data.disablePasswordLogin}
     disableSignUp={data.disableSignUp}
+    formValidated={data.formValidated}
   />
 </div>
