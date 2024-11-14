@@ -45,7 +45,7 @@
         <SmartImageLoader
           src={source.faviconUrl}
           alt={`${new URL(source.url).host.replace("www.", "")} favicon`}
-          class="aspect-square h-4 w-4 rounded-full"
+          class="aspect-square h-4 min-h-4 w-4 min-w-4 rounded-full"
           imageClass="object-cover"
         />
       {/if}
