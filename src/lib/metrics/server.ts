@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { parse } from "url";
 import { register } from ".";
 import { log } from "$lib/log";
+import { db } from "$lib/db";
 
 let server: Server | null = null;
 
@@ -31,7 +32,10 @@ export const createMetricsServer = () => {
       }
 
       res.setHeader("Content-Type", register.contentType);
-      res.end(await register.metrics());
+      const registerMetrics = await register.metrics();
+      const prismaMetrics = await db.$metrics.prometheus();
+      const allMetrics = registerMetrics + "\n" + prismaMetrics;
+      res.end(allMetrics);
       log.trace("Served metrics");
     }).listen(port, "0.0.0.0");
 
