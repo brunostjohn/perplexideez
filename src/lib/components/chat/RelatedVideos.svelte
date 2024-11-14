@@ -6,7 +6,6 @@
   }
 
   const { results }: Props = $props();
-  $inspect(results);
 </script>
 
 <div class="mb-6 grid grid-cols-2 gap-2">

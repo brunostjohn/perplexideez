@@ -70,7 +70,6 @@ export const useStreamedResponse = ({
 
         for (const val of parsed) {
           if (val.type === "doneResponse") {
-            console.log("got done!");
             isNotDone = false;
           }
           if (val.type === "response") {
