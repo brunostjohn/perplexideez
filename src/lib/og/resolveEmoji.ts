@@ -1,5 +1,6 @@
 import { ucs2 } from "punycode";
 import { readFile } from "fs/promises";
+import { log } from "$lib/log";
 
 export const resolveEmoji = async (emoji: string) => {
   const filename =
@@ -8,7 +9,12 @@ export const resolveEmoji = async (emoji: string) => {
       .map((num) => num.toString(16))
       .join("-") + ".png";
   const filepath = `node_modules/emojiimages/imgs/${filename}`;
-  const file = await readFile(filepath);
-  const base64 = file.toString("base64");
-  return `data:image/png;base64,${base64}`;
+  try {
+    const file = await readFile(filepath);
+    const base64 = file.toString("base64");
+    return `data:image/png;base64,${base64}`;
+  } catch (e) {
+    log.error({ error: e }, "Failed to resolve emoji");
+    return undefined;
+  }
 };
