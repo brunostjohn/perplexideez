@@ -35,6 +35,7 @@ const adapter = PrismaAdapter(db);
 export const { handle, signIn, signOut } = SvelteKitAuth({
   adapter,
   trustHost: true,
+  debug: log.level === "trace" || log.level === "debug",
   providers: [
     ...(hasOIDCEnvVariables
       ? [
