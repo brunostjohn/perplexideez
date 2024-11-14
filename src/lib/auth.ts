@@ -24,7 +24,7 @@ if (!building && !hasOIDCEnvVariables && env.DISABLE_PASSWORD_LOGIN === "true") 
   process.exit(1);
 }
 
-if (!hasOIDCEnvVariables) {
+if (!building && !hasOIDCEnvVariables) {
   log.warn("No OIDC env variables are set, only password login will be enabled.");
 }
 

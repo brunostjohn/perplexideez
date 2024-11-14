@@ -4,18 +4,20 @@ import type { createChatSchema } from "$lib/trpc/router";
 import * as Prisma from "@prisma/client";
 import type { z } from "zod";
 import { log } from "./log";
+import { building } from "$app/environment";
 
 export const db = new PrismaClient({
   datasourceUrl: env.DATABASE_URL,
 });
 
-db.$connect()
-  .then(() => {
-    log.info("Connected to database");
-  })
-  .catch((error) => {
-    log.error({ error }, "Failed to connect to database");
-  });
+if (!building)
+  db.$connect()
+    .then(() => {
+      log.info("Connected to database");
+    })
+    .catch((error) => {
+      log.error({ error }, "Failed to connect to database");
+    });
 
 export const convertZodEnumToDbModel = (
   enumValue: z.infer<typeof createChatSchema>["modelType"]
