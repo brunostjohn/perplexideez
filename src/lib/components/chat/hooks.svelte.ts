@@ -9,6 +9,7 @@ interface Options {
   refetch?: () => void;
   enableStreaming?: boolean | (() => boolean);
   onStreamed?: () => void;
+  onError?: (error: Error) => void;
 }
 
 export const useStreamedResponse = ({
@@ -17,6 +18,7 @@ export const useStreamedResponse = ({
   refetch,
   enableStreaming,
   onStreamed,
+  onError,
 }: Options) => {
   const data = $state({
     isStreaming: false,
@@ -32,7 +34,7 @@ export const useStreamedResponse = ({
 
     if (lastMessage.role === "User" || (lastMessage.role === "Assistant" && lastMessage.pending)) {
       onStreamed?.();
-      streamAResponse();
+      streamAResponse().catch(onError);
     }
   });
 

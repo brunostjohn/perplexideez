@@ -48,21 +48,26 @@ export const POST = async ({ locals: { auth }, params: { id } }) => {
 
   const { llmType, llm, messageHistory, lastUserMessage } = await prepareStream(chat, messages);
 
-  const stream = await createLLMStream(
-    focusMode,
-    messageHistory,
-    llm,
-    lastUserMessage,
-    llmType,
-    chat,
-    messages
-  );
+  try {
+    const stream = await createLLMStream(
+      focusMode,
+      messageHistory,
+      llm,
+      lastUserMessage,
+      llmType,
+      chat,
+      messages
+    );
 
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream",
-    },
-  });
+    return new Response(stream, {
+      headers: {
+        "content-type": "text/event-stream",
+      },
+    });
+  } catch (e) {
+    log.error(e, "Failed to create stream");
+    return error(500, "Failed to create stream");
+  }
 };
 
 const prepareStream = async (chat: Prisma.Chat, messages: Prisma.Message[]) => {

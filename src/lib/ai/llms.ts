@@ -40,6 +40,20 @@ const createLLM = (model: string) =>
         ...commonOllamaModelArgs,
       });
 
+if (
+  !building &&
+  (!env.LLM_SPEED_MODEL ||
+    !env.LLM_BALANCED_MODEL ||
+    !env.LLM_QUALITY_MODEL ||
+    !env.LLM_EMOJI_MODEL ||
+    !env.LLM_TITLE_MODEL ||
+    !env.LLM_IMAGE_SEARCH_MODEL ||
+    !env.LLM_VIDEO_SEARCH_MODEL)
+) {
+  log.error("Missing required LLM models, please set them in the environment. Exiting...");
+  process.exit(1);
+}
+
 export const llmSpeed = createLLM(env.LLM_SPEED_MODEL);
 export const llmBalanced = createLLM(env.LLM_BALANCED_MODEL);
 export const llmQuality = createLLM(env.LLM_QUALITY_MODEL);
@@ -69,6 +83,8 @@ if (!building && !isOpenAI) {
         env.LLM_QUALITY_MODEL,
         env.LLM_EMOJI_MODEL,
         env.LLM_TITLE_MODEL,
+        env.LLM_IMAGE_SEARCH_MODEL,
+        env.LLM_VIDEO_SEARCH_MODEL,
       ];
       const missingModels = requiredModels.filter(
         (model) => !models.filter(({ name }) => name === model).length

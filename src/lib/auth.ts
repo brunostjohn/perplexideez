@@ -9,8 +9,9 @@ import { passwordAuthLoginFormSchema } from "./components/auth";
 import { log } from "./log";
 import { encode as defaultEncode } from "@auth/core/jwt";
 import cuid from "cuid";
+import { building } from "$app/environment";
 
-if (!env.RATE_LIMIT_SECRET) {
+if (!building && !env.RATE_LIMIT_SECRET) {
   log.error("RATE_LIMIT_SECRET is not set");
   process.exit(1);
 }
@@ -18,7 +19,7 @@ if (!env.RATE_LIMIT_SECRET) {
 const hasOIDCEnvVariables =
   envPublic.PUBLIC_OIDC_NAME && env.OIDC_ISSUER && env.OIDC_CLIENT_ID && env.OIDC_CLIENT_SECRET;
 
-if (!hasOIDCEnvVariables && env.DISABLE_PASSWORD_LOGIN === "true") {
+if (!building && !hasOIDCEnvVariables && env.DISABLE_PASSWORD_LOGIN === "true") {
   log.error("No auth methods are enabled");
   process.exit(1);
 }
