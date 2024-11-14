@@ -17,39 +17,45 @@ export const load: PageServerLoad = async ({ params: { id }, locals: { auth }, c
       console.error("Error parsing viewedChats cookie:", error);
     }
 
+  const sharedLink = await db.sharedLink.findFirst({
+    where: { id },
+    select: { chatId: true, views: true, chat: { select: { id: true } }, requiredAuth: true },
+  });
+  if (!sharedLink) return error(404, "Shared link not found");
+  if (sharedLink.requiredAuth && !session)
+    return redirect(307, "/auth?redirect=/shared/" + id + "&shared=true");
+
+  let views = sharedLink.views;
+  if (!viewedChats.includes(sharedLink.chat.id)) {
+    await db.sharedLink.update({
+      where: { id },
+      data: { views: { increment: 1 } },
+    });
+    views++;
+    viewedChats.push(sharedLink.chat.id);
+    cookies.set("viewedChats", JSON.stringify(viewedChats), {
+      maxAge: 60 * 60 * 24 * 365,
+      path: "/",
+      httpOnly: true,
+    });
+  }
+
   return {
-    chat: getChat(id, !!session, viewedChats, (chatId) => {
-      viewedChats.push(chatId);
-      cookies.set("viewedChats", JSON.stringify(viewedChats), {
-        maxAge: 60 * 60 * 24 * 365,
-        path: "/",
-        httpOnly: true,
-      });
-    }),
+    chat: getChat(id, views),
     pageMetaTags: await getMetaTags(id, !!session),
   };
 };
 
-const getChat = async (
-  sharedLinkId: string,
-  isAuthenticated: boolean,
-  viewedChats: string[],
-  addCallback: (chatId: string) => void
-) => {
+const getChat = async (sharedLinkId: string, views: number) => {
   try {
-    return await __getChat(sharedLinkId, isAuthenticated, viewedChats, addCallback);
+    return await __getChat(sharedLinkId, views);
   } catch (e) {
     log.error({ error: e }, "Failed to get chat");
     throw e;
   }
 };
 
-const __getChat = async (
-  sharedLinkId: string,
-  isAuthenticated: boolean,
-  viewedChats: string[],
-  addCallback: (chatId: string) => void
-) => {
+const __getChat = async (sharedLinkId: string, views: number) => {
   const sharedLink = await db.sharedLink.findFirst({
     where: {
       id: sharedLinkId,
@@ -63,8 +69,6 @@ const __getChat = async (
   });
 
   if (!sharedLink || !sharedLink?.enabled) return error(404, "Shared link not found");
-  if (sharedLink.requiredAuth && !isAuthenticated)
-    return redirect(307, "/auth?redirect=/shared/" + sharedLinkId + "&shared=true");
 
   const chat = await db.chat.findFirst({
     where: {
@@ -96,16 +100,6 @@ const __getChat = async (
       videoResults: true,
     },
   });
-  if (!chat) return error(404, "Chat not found");
-  let views = sharedLink.views;
-  if (!viewedChats.includes(chat.id)) {
-    await db.sharedLink.update({
-      where: { id: sharedLinkId },
-      data: { views: { increment: 1 } },
-    });
-    addCallback(chat.id);
-    views++;
-  }
 
   return { ...chat, visibilityPublic: !sharedLink.requiredAuth, views };
 };

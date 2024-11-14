@@ -11,7 +11,7 @@
 </script>
 
 <div class="flex h-full w-full bg-[#0c0c0c] font-['Inter']">
-  <div class="flex w-[60%] flex-col p-6 pr-4">
+  <div class="flex {imageUrl ? 'w-[60%]' : 'w-full'} flex-col p-6 pr-4">
     {#if chatEmojiBase64}
       <img
         src={chatEmojiBase64}

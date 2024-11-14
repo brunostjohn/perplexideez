@@ -10,7 +10,7 @@ export const GET = async ({ params: { id } }) => {
         sharedLink: { id },
       },
       select: {
-        imageResults: { select: { imageUrl: true }, take: 1 },
+        imageResults: { select: { imageUrl: true }, take: 3 },
         emoji: true,
         title: true,
         messages: {
@@ -25,6 +25,29 @@ export const GET = async ({ params: { id } }) => {
     if (!chat) return error(404, "Share not found");
     if (chat.sharedLink?.requiredAuth) return error(401, "Unauthorized");
     const emoji = chat.emoji ? await resolveEmoji(chat.emoji) : undefined;
+
+    const renderWithImage = async (imageNumber: number) =>
+      await componentToPng({
+        component: OGImageShared,
+        width: 1200,
+        height: 630,
+        options: {
+          props: {
+            chatEmojiBase64: emoji,
+            chatTitle: chat.title ?? chat.messages[0].content!,
+            imageUrl: chat.imageResults[imageNumber].imageUrl,
+          },
+        },
+      });
+
+    for (let i = 0; i < 3; i++) {
+      try {
+        return await renderWithImage(i);
+      } catch (e) {
+        log.error({ error: e }, "Failed to render with image");
+      }
+    }
+
     return await componentToPng({
       component: OGImageShared,
       width: 1200,
@@ -33,7 +56,6 @@ export const GET = async ({ params: { id } }) => {
         props: {
           chatEmojiBase64: emoji,
           chatTitle: chat.title ?? chat.messages[0].content!,
-          imageUrl: chat.imageResults[0].imageUrl,
         },
       },
     });
