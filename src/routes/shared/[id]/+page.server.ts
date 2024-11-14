@@ -3,6 +3,7 @@ import type { PageServerLoad } from "./$types";
 import { db } from "$lib/db";
 import { error, redirect } from "@sveltejs/kit";
 import { env as envPublic } from "$env/dynamic/public";
+import { log } from "$lib/log";
 
 export const load: PageServerLoad = async ({ params: { id }, locals: { auth }, cookies }) => {
   const session = await auth();
@@ -30,6 +31,20 @@ export const load: PageServerLoad = async ({ params: { id }, locals: { auth }, c
 };
 
 const getChat = async (
+  sharedLinkId: string,
+  isAuthenticated: boolean,
+  viewedChats: string[],
+  addCallback: (chatId: string) => void
+) => {
+  try {
+    return await __getChat(sharedLinkId, isAuthenticated, viewedChats, addCallback);
+  } catch (e) {
+    log.error({ error: e }, "Failed to get chat");
+    throw e;
+  }
+};
+
+const __getChat = async (
   sharedLinkId: string,
   isAuthenticated: boolean,
   viewedChats: string[],
