@@ -119,7 +119,7 @@ const createLLMStream = async (
         )
       );
       events.on("error", (error) => {
-        controller.error(JSON.stringify(error));
+        controller.error(JSON.stringify(error) + "\n");
       });
       events.on("done", async (data) =>
         handleDoneResponse(
@@ -278,7 +278,7 @@ const handleTitleEmojis = async (
   });
 
   log.debug({ messageId: newMessageId }, "Generated title and emoji");
-  controller.enqueue(JSON.stringify({ type: "doneTitleEmoji" }));
+  controller.enqueue(JSON.stringify({ type: "doneTitleEmoji" }) + "\n");
 };
 
 const createBaseMessageFromDbChat = (messages: Prisma.Message[]) =>

@@ -57,6 +57,7 @@ export const useStreamedResponse = ({
       try {
         const parsed = value
           .split("\n")
+          .map((v) => v.trim())
           .filter((v) => v.startsWith("{") && v.endsWith("}"))
           .map(
             (v) =>
