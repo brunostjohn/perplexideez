@@ -43,6 +43,7 @@ export const load: PageServerLoad = async ({ params: { id }, locals: { auth }, c
   return {
     chat: getChat(id, views),
     pageMetaTags: await getMetaTags(id, !!session),
+    id,
   };
 };
 
@@ -127,17 +128,17 @@ const getMetaTags = async (sharedLinkId: string, isAuthenticated: boolean) => {
   });
   if (!chat) return error(404, "Chat not found");
 
-  const pageMetaTags = Object.freeze({
-    title: `${(chat.emoji ?? "") + " "}${chat.title}`,
+  const pageMetaTags: MetaTagsProps = Object.freeze({
+    title: `${(chat.emoji?.replaceAll("\n", "") ?? "") + " "}${chat.title?.replaceAll("\n", "")}`,
     description: `${chat.user.name ?? "Someone"} shared a chat with you.`,
     openGraph: {
-      title: `${chat.emoji} ${chat.title}`,
+      title: `${chat.emoji?.replaceAll("\n", "")} ${chat.title?.replaceAll("\n", "")}`,
       author: chat.user.name,
       description: `${chat.user.name ?? "Someone"} shared a chat with you.`,
       images: [
         {
           url: `${envPublic.PUBLIC_BASE_URL}/shared/${sharedLinkId}/og.png`,
-          alt: `${chat.emoji} ${chat.title}`,
+          alt: `${chat.emoji?.replaceAll("\n", "")} ${chat.title?.replaceAll("\n", "")}`,
           width: 1200,
           height: 630,
           secureUrl: `${envPublic.PUBLIC_BASE_URL}/shared/${sharedLinkId}/og.png`,
@@ -145,7 +146,16 @@ const getMetaTags = async (sharedLinkId: string, isAuthenticated: boolean) => {
         },
       ],
     },
-  }) satisfies MetaTagsProps;
+    twitter: {
+      cardType: "summary_large_image" as const,
+      image: `${envPublic.PUBLIC_BASE_URL}/shared/${sharedLinkId}/og.png`,
+      title: `${chat.emoji?.replaceAll("\n", "")} ${chat.title?.replaceAll("\n", "")}`,
+      description: `${chat.user.name ?? "Someone"} shared a chat with you.`,
+      creator: chat.user.name ?? "",
+      site: "Perplexideez",
+      imageAlt: `${chat.emoji?.replaceAll("\n", "")} ${chat.title?.replaceAll("\n", "")}`,
+    },
+  });
 
   return pageMetaTags;
 };

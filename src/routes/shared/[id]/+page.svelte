@@ -47,6 +47,11 @@
   const messagesChunked = <T,>(msgs: T[]) => chunkify(msgs, 2).toArray();
 </script>
 
+<svelte:head>
+  <link type="application/json+oembed" href="/shared/{data.id}/oembed.json" />
+  <meta name="theme-color" content="#7289DA" />
+</svelte:head>
+
 <ScrollArea
   class="mx-auto h-full max-h-full w-full max-w-screen-xl overflow-y-auto overflow-x-hidden p-4 xl:p-0"
   viewportClasses="px-4 py-6"

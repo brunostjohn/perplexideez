@@ -272,8 +272,8 @@ const handleTitleEmojis = async (
       id: chatId,
     },
     data: {
-      title,
-      emoji,
+      title: title?.replaceAll("\n", ""),
+      emoji: emoji?.replaceAll("\n", ""),
     },
   });
 
