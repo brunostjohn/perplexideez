@@ -53,7 +53,7 @@
 </svelte:head>
 
 <ScrollArea
-  class="mx-auto h-full max-h-full w-full max-w-screen-xl overflow-y-auto overflow-x-hidden p-4 xl:p-0"
+  class="mx-auto h-full max-h-full w-full max-w-screen-lg overflow-y-auto overflow-x-hidden p-4 xl:p-0"
   viewportClasses="px-4 py-6"
 >
   <div class="align-center mb-8 flex items-center gap-1">
