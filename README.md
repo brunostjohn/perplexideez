@@ -67,26 +67,31 @@ There are many self-hosted Perplexity clones out there. I chose to make my own a
 <h4 id="features-searchTheWeb"> Search the web </h4>
 
 ![Screenshot](/assets/search.png)
+
 Let AI do the hard work of sifting through search results for you.
 
 <h4 id="features-knowWhere"> Know where conclusions come from </h4>
 
 ![Screenshot](/assets/sources.png)
+
 Don't worry about hallucinations ruining your research. Just hover over the source annotation your LLM inserted and see the source it used. Click on it, and view the source directly.
 
 <h5 id="features-knowWhere-learnMore"> Learn even more </h5>
 
 ![Screenshot](/assets/follow-up.png)
+
 Your LLM will generate great follow-up questions for you. This way, you can ask about what interested you in the response without typing a single second.
 
 <h4 id="features-keepTrack"> Keep track of your most interesting searches </h4>
 
 ![Screenshot](/assets/favourites.png)
+
 Stash your favourite searches as favourites. This way, you'll never lose them.
 
 <h4 id="features-customise"> Customise your experience </h4>
 
 ![Screenshot](/assets/model-picker.png)
+
 Perplexideez lets you use different models for different tasks, as appropriate. The robust environment variables and UI configuration allow you to make sure your self hosted resources are not overused.
 
 <h4 id="features-multiUser"> Multi-user support & SSO </h4>
@@ -100,16 +105,19 @@ Perplexideez supports many user accounts, with separated data, and using OIDC SS
 <h5 id="featuers-sharing-simple"> Simple UI </h5>
 
 ![Screenshot](/assets/sharing.png)
+
 Perplexideez allows you to share links to others with the results of your searches. This way, you can send the interesting stuff to your friends easily.
 
 <h5 id="features-sharing-accessControl"> Access control </h5>
 
 ![Screenshot](/assets/access-control.png)
+
 When sharing a link, you can make sure only the people you want have access to it. Reroll the link's ID, require authentication to view, or disable it altogether.
 
 <h5 id="features-sharing-embeds"> Good looking embeds </h5>
 
 ![Screenshot](/assets/embed.png)
+
 Perplexideez creates beautiful embeds for all the links you share publicly. This way, the people you send it to know what they'll be looking at.
 
 <h4 id="features-deployment"> Deployment </h4>
