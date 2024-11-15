@@ -44,7 +44,7 @@
     if (chunk.length) yield chunk;
   }
 
-  const messagesChunked = <T,>(msgs: T[]) => chunkify(msgs, 2).toArray();
+  const messagesChunked = <T,>(msgs: T[]) => [...chunkify(msgs, 2)];
 </script>
 
 <svelte:head>
@@ -52,10 +52,7 @@
   <meta name="theme-color" content="#7289DA" />
 </svelte:head>
 
-<ScrollArea
-  class="mx-auto h-full max-h-full w-full max-w-screen-lg overflow-y-auto overflow-x-hidden p-4 xl:p-0"
-  viewportClasses="px-4 py-6"
->
+<div class="mx-auto max-w-screen-lg px-4 py-6">
   <div class="align-center mb-8 flex items-center gap-1">
     {#await chat}
       <LoaderCircle class="size-8 animate-spin" />
@@ -68,24 +65,24 @@
     {#if emoji}
       <p class="emoji mb-2 text-4xl">{emoji}</p>
     {/if}
-    <h1 class="mb-4 text-4xl font-bold">
+    <h1 class="mb-6 text-4xl font-bold md:mb-4">
       {title}
     </h1>
-    <div class="align-center flex items-center gap-6">
+    <div class="align-center items-star flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
       <InfoChip icon={ExternalLink}>
-        Shared by {user.name}
+        Shared by {user!.name}
       </InfoChip>
       <InfoChip icon={BadgePlus}>
-        Created {getTimeMoment(createdAt)}
+        Created {getTimeMoment(createdAt!)}
       </InfoChip>
       <InfoChip icon={visibilityPublic ? PersonStanding : Lock}>
         {visibilityPublic ? "Public" : "Private"}</InfoChip
       >
-      <InfoChip icon={Eye} class="ml-auto">{views} views</InfoChip>
+      <InfoChip icon={Eye} class="md:ml-auto">{views} views</InfoChip>
     </div>
     <Separator class="mt-6" />
     <div class="mt-6 flex flex-col gap-10">
-      {#each messagesChunked(messages) as message}
+      {#each messagesChunked(messages!) as message}
         {@const humanMessage = message.find(({ role }) => role === "User")!}
         {@const aiMessage = message.find(({ role }) => role === "Assistant")}
         <Message {humanMessage} {aiMessage} />
@@ -94,7 +91,7 @@
   {:catch error}
     <p>{error.message}</p>
   {/await}
-</ScrollArea>
+</div>
 
 <style>
   @font-face {

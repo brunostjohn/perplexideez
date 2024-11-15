@@ -23,6 +23,7 @@
   const matches2Xl = createMediaStore("(min-width: 1536px)");
   const matchesXl = createMediaStore("(min-width: 1280px)");
   const matchesMd = createMediaStore("(min-width: 768px)");
+  const matchesSm = createMediaStore("(min-width: 640px)");
 
   const show4 = $derived(
     (!alternativeSizing && ($matches2Xl || !$matchesXl)) || (alternativeSizing && $matchesMd)
@@ -32,6 +33,7 @@
     matches2Xl.destroy();
     matchesXl.destroy();
     matchesMd.destroy();
+    matchesSm.destroy();
   });
 </script>
 
@@ -41,28 +43,38 @@
 {#if sources && sources.length}
   <ul
     class={cn(
-      "mb-6 grid gap-2",
+      "mb-6 grid grid-cols-1 grid-rows-2 gap-2",
       alternativeSizing
-        ? "grid-cols-3 md:grid-cols-4"
-        : "grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
+        ? "sm:grid-cols-3 md:grid-cols-4"
+        : "sm:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
     )}
   >
-    {#each sources.slice(0, show4 ? 3 : 2) as source}
-      <SourcePanel {source} />
-    {/each}
-    <AdditionalSourcesPanel {sources} displayedCount={2} />
+    {#if $matchesSm}
+      {#each sources.slice(0, show4 ? 3 : 2) as source}
+        <SourcePanel {source} />
+      {/each}
+      <AdditionalSourcesPanel {sources} displayedCount={show4 ? 3 : 2} />
+    {:else}
+      <SourcePanel source={sources[0]} />
+      <AdditionalSourcesPanel {sources} displayedCount={1} />
+    {/if}
   </ul>
 {:else}
   <div
     class={cn(
-      "mb-6 grid w-full gap-2 transition-all ",
+      "mb-6 grid w-full grid-cols-1 grid-rows-2 gap-2 transition-all",
       alternativeSizing
-        ? "grid-cols-3 md:grid-cols-4"
-        : "grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
+        ? "sm:grid-cols-3 md:grid-cols-4"
+        : "sm:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
     )}
   >
-    {#each Array.from({ length: show4 ? 4 : 3 }) as _}
+    {#if $matchesSm}
+      {#each Array.from({ length: show4 ? 4 : 3 }) as _}
+        <Skeleton class="h-[8.78rem] w-full" />
+      {/each}
+    {:else}
       <Skeleton class="h-[8.78rem] w-full" />
-    {/each}
+      <Skeleton class="h-[8.78rem] w-full" />
+    {/if}
   </div>
 {/if}

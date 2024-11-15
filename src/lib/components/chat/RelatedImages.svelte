@@ -10,14 +10,16 @@
 
   const { results }: Props = $props();
   const matches = createMediaStore("(min-width: 1280px)");
+  const matchesSm = createMediaStore("(min-width: 640px)");
 
   onDestroy(() => {
     matches.destroy();
+    matchesSm.destroy();
   });
 </script>
 
-<div class="grid grid-cols-4 gap-2 overflow-hidden xl:grid-cols-2 xl:pr-4">
-  {#each results.slice(0, 3) as result}
+<div class="grid grid-cols-3 gap-2 overflow-hidden sm:grid-cols-4 xl:grid-cols-2 xl:pr-4">
+  {#each results.slice(0, $matchesSm ? 3 : 2) as result}
     <SmartImageLoader
       src={result.thumbnailUrl}
       alt={result.title}

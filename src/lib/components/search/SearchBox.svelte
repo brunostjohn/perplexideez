@@ -78,7 +78,9 @@
   let searchAreaContent = $state<string>("");
 </script>
 
-<div class="flex w-full max-w-[60%] flex-col rounded-lg border bg-muted/30 p-6 pb-3 pl-3">
+<div
+  class="flex w-full max-w-[90%] flex-col rounded-lg border bg-muted/30 p-6 pb-3 pl-3 sm:max-w-[75%] md:max-w-[60%]"
+>
   <textarea
     bind:this={searchArea}
     bind:value={searchAreaContent}

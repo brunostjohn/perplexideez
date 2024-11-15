@@ -53,6 +53,7 @@
         orientation="vertical"
         class="mt-12 hidden h-[32rem] max-h-[32rem] !min-h-[auto] xl:block"
       />
+      <Separator class="xl:hidden" />
       <div class="flex flex-col gap-8 pb-10 xl:w-[70%] xl:pl-4">
         {#each messagesChunked as messages, i}
           {@const humanMessage = messages.find(({ role }) => role === "User")!}

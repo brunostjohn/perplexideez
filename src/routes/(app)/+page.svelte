@@ -11,8 +11,8 @@
 </script>
 
 <main class="align-center flex h-full w-full flex-col items-center justify-center">
-  <div class="align-center flex w-full flex-col items-center justify-center gap-6 pb-32">
-    <Icon class="size-32" />
+  <div class="align-center flex w-full flex-col items-center justify-center gap-6 pb-24 sm:pb-32">
+    <Icon class="size-24 sm:size-32" />
     <SearchBox {llmSpeed} {llmBalanced} {llmQuality} />
   </div>
 </main>
