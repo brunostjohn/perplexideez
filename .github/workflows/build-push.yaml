@@ -1,4 +1,4 @@
-name: Build App
+name: Build Nightly App
 
 on:
   push:
@@ -79,7 +79,7 @@ jobs:
         with:
           images: ghcr.io/brunostjohn/perplexideez/app
           tags: |
-            type=semver,pattern={{major}}.{{minor}},value=v1.0.0
+            type=edge,branch=main
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6.8.0
