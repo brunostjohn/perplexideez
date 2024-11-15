@@ -1,20 +1,9 @@
-name: Build Nightly App
+name: Build Release App
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "deploy/*.Dockerfile"
-      - "*.json"
-      - "*.ts"
-      - pnpm-lock.yaml
-      - "*.js"
-      - "src/**"
-      - "prisma/**"
-      - "static/**"
-      - ".gitignore"
-      - ".github/workflows/build-push.yaml"
+  release:
+    types:
+      - published
   workflow_dispatch:
 
 jobs:
@@ -42,7 +31,7 @@ jobs:
         with:
           images: ghcr.io/brunostjohn/perplexideez/migrate
           tags: |
-            type=edge,branch=main
+            type=semver,pattern={{version}}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6.8.0
@@ -79,7 +68,7 @@ jobs:
         with:
           images: ghcr.io/brunostjohn/perplexideez/app
           tags: |
-            type=edge,branch=main
+            type=semver,pattern={{version}}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v6.8.0
