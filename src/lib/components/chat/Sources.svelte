@@ -43,7 +43,7 @@
 {#if sources && sources.length}
   <ul
     class={cn(
-      "mb-6 grid grid-cols-1 grid-rows-2 gap-2",
+      "mb-6 grid grid-cols-1 grid-rows-2 gap-2 sm:grid-rows-1",
       alternativeSizing
         ? "sm:grid-cols-3 md:grid-cols-4"
         : "sm:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4"
