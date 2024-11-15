@@ -139,7 +139,7 @@ Save for an in-progress generation, the containers are fully stateless. The feat
 
 <h3 id="deploying-docker"> Docker </h3>
 
-Use the example Compose files in `deploy/docker` to configure your own stack. These include the app, SearXNG, and a database. Use the `.env.example` to get started, before running rename to `.env` and make sure all the required values from the table below are filled out. The example stack **does not** provide neither Ollama nor OpenAI compatible endpoints. Setting that up is up to you.
+Use the example Compose files in [`deploy/docker`](https://github.com/brunostjohn/perplexideez/tree/main/deploy/docker) to configure your own stack. These include the app, SearXNG, and a database. Use the `.env.example` to get started, before running rename to `.env` and make sure all the required values from the table below are filled out. The example stack **does not** provide neither Ollama nor OpenAI compatible endpoints. Setting that up is up to you.
 
 <h3 id="deploying-kube"> Kubernetes </h3>
 
