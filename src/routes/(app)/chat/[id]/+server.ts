@@ -109,8 +109,6 @@ const createLLMStream = async (
     },
   });
 
-  log.debug({ aiModel: llm.model, chatId: chat.id }, "Sending message to LLM");
-
   return new ReadableStream({
     start: (controller) => {
       events.on("data", (data) =>
