@@ -37,6 +37,7 @@ model Message {
     sources          Source[]
     suggestions      String[]
     metadata         Json?
+    aiModel          String?
 }
 
 model ImageResult {

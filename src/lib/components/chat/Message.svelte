@@ -24,6 +24,7 @@
       sources: Source[];
       role: "Assistant";
       suggestions: string[];
+      aiModel?: string;
     };
   }
 
@@ -73,13 +74,14 @@
 
   {#if messagePair.aiResponse || streamedResponse.isStreaming}
     <Sources isStreaming={streamedResponse.isStreaming} sources={messagePair.aiResponse?.sources} />
-
+    
     <LLMMarkdownRenderer
       isStreaming={streamedResponse.isStreaming}
       usedSources={messagePair.aiResponse?.sources}
       source={(streamedResponse.isStreaming || !messagePair.aiResponse?.content
         ? streamedResponse.streamedContent
         : messagePair.aiResponse?.content) ?? ""}
+      aiModel={messagePair.aiResponse?.aiModel}
     />
 
     {#if !streamedResponse.isStreaming && messagePair.aiResponse}
