@@ -2,6 +2,7 @@ model User {
     id                    String     @id @default(cuid())
     name                  String?
     email                 String     @unique
+    role                  UserRole   @default(User)
     emailVerified         DateTime?
     image                 String?
     pwHash                String?
@@ -12,6 +13,11 @@ model User {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+    User
+    Admin
 }
 
 model Account {

@@ -14,7 +14,7 @@ export async function createContext(event: RequestEvent) {
   return {
     event,
     session,
-    user: session.user,
+    user: session.user as (typeof session)["user"] & { role: "Admin" | "User" },
   };
 }
 

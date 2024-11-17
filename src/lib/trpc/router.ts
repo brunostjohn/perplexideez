@@ -380,6 +380,88 @@ export const router = t.router({
       return convertDbEnumToZodModel(user?.lastSelectedModelType);
     }
   ),
+  users: t.procedure.query(
+    async ({
+      ctx: {
+        user: { role, id: userId },
+      },
+    }) => {
+      if (role !== "Admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+
+      const users = await db.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          pwHash: true,
+          role: true,
+        },
+        orderBy: {
+          email: "asc",
+        },
+      });
+
+      return users.map(({ id, email, role, name, pwHash }) => ({
+        id,
+        email,
+        role,
+        name,
+        isMe: id === userId,
+        authType: pwHash ? ("password" as const) : ("oauth" as const),
+      }));
+    }
+  ),
+  toggleRole: t.procedure.input(z.object({ userId: z.string() })).mutation(
+    async ({
+      input: { userId },
+      ctx: {
+        user: { role },
+      },
+    }) => {
+      if (role !== "Admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const user = await db.user.findFirst({
+        where: {
+          id: userId,
+        },
+        select: {
+          role: true,
+        },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const newRole = user.role === "Admin" ? "User" : "Admin";
+      await db.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          role: newRole,
+        },
+      });
+    }
+  ),
+  deleteUser: t.procedure.input(z.object({ userId: z.string() })).mutation(
+    async ({
+      input: { userId },
+      ctx: {
+        user: { role },
+      },
+    }) => {
+      if (role !== "Admin") {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      await db.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+    }
+  ),
 });
 
 export const createCaller = t.createCallerFactory(router);

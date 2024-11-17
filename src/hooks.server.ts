@@ -8,6 +8,7 @@ import { log } from "$lib/log";
 import { createMetricsServer } from "$lib/metrics";
 
 const ALLOWED_UNAUTHENTICATED_PATHS = ["/auth", "/api/auth", "/shared/", "/healthz"];
+const ONLY_ADMIN_PATHS = ["/admin"];
 const METRICS_SERVER = createMetricsServer();
 
 export const handle: Handle = sequence(
@@ -27,6 +28,15 @@ export const handle: Handle = sequence(
 
     if (ALLOWED_UNAUTHENTICATED_PATHS.some((path) => pathname.startsWith(path))) {
       return resolve(event);
+    }
+
+    if (
+      ONLY_ADMIN_PATHS.some((path) => pathname.startsWith(path)) &&
+      // @ts-expect-error - role not defined in type
+      !session?.user?.role === "Admin"
+    ) {
+      log.trace({ pathname }, "unauthenticated user redirected to /auth");
+      return redirect(403, "/auth");
     }
 
     if (pathname === "/") {

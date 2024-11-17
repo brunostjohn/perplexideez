@@ -37,7 +37,7 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
   adapter,
   trustHost: true,
   debug: log.level === "trace" || log.level === "debug",
-  useSecureCookies: (env.USE_SECURE_COOKIES ?? "true") === "true",
+  useSecureCookies: (env.USE_SECURE_COOKIES ?? "true") === "true" ? undefined : false,
   skipCSRFCheck: env.SKIP_CSRF_CHECK === "true" ? skipCSRFCheck : undefined,
   providers: [
     ...(hasOIDCEnvVariables

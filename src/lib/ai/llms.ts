@@ -1,28 +1,10 @@
 import { building } from "$app/environment";
 import { env } from "$env/dynamic/private";
 import { log } from "$lib/log";
-import { ChatOllama, type ChatOllamaInput } from "@langchain/ollama";
-import {
-  ChatOpenAI,
-  type ChatOpenAIFields,
-  type ClientOptions,
-  type LegacyOpenAIInput,
-} from "@langchain/openai";
-import { Ollama } from "ollama";
-
-const commonOllamaModelArgs: Partial<ChatOllamaInput> = {
-  baseUrl: env.OLLAMA_URL,
-  temperature: 0.7,
-};
-
-const commonOpenAIModelArgs: Partial<ChatOpenAIFields> = {
-  temperature: 0.7,
-};
-
-const commonOpenAIClientArgs: Partial<ClientOptions & LegacyOpenAIInput> = {
-  baseURL: env.OPENAI_BASE_URL,
-  apiKey: env.OPENAI_API_KEY,
-};
+import { ChatOllama } from "@langchain/ollama";
+import { ChatOpenAI } from "@langchain/openai";
+import { commonOllamaModelArgs, ollama } from "./ollama";
+import { commonOpenAIClientArgs, commonOpenAIModelArgs } from "./openai";
 
 const isOpenAI = env.LLM_MODE === "openai";
 
@@ -62,17 +44,11 @@ export const llmTitle = createLLM(env.LLM_TITLE_MODEL);
 export const llmImageSearch = createLLM(env.LLM_IMAGE_SEARCH_MODEL);
 export const llmVideoSearch = createLLM(env.LLM_VIDEO_SEARCH_MODEL);
 
-export const ollama = !isOpenAI
-  ? new Ollama({
-      host: env.OLLAMA_URL,
-    })
-  : null;
-
 if (!building && isOpenAI) {
   log.info("Using OpenAI models");
 }
 
-if (!building && !isOpenAI) {
+if (!building && !import.meta.env.DEV && !isOpenAI) {
   ollama
     ?.list()
     .then(({ models }) => {
@@ -90,11 +66,7 @@ if (!building && !isOpenAI) {
         (model) => !models.filter(({ name }) => name === model).length
       );
       if (missingModels.length) {
-        log.error(
-          { missingModels },
-          "Missing models from Ollama, please pull them first. Exiting..."
-        );
-        process.exit(1);
+        log.error({ missingModels }, "Missing models from Ollama, please pull them.");
       }
       log.info("All required models are available");
     })

@@ -4,11 +4,12 @@
   import { cn } from "$lib/utils";
   import { signOut } from "@auth/sveltekit/client";
   import { ChevronDown, Settings, LogOut } from "lucide-svelte";
+  import { goto } from "$app/navigation";
 
   let open = $state(false);
 
   interface Props {
-    user: { name?: string; email: string; image?: string };
+    user: { name?: string; email: string; image?: string; role?: "User" | "Admin" };
   }
 
   const { user }: Props = $props();
@@ -56,18 +57,24 @@
     {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content class="min-w-56">
-    <!-- <DropdownMenu.Group>
-      <DropdownMenu.GroupHeading>My Account</DropdownMenu.GroupHeading>
-      <DropdownMenu.Separator />
+    {#if user.role === "Admin"}
       <DropdownMenu.Group>
-        <DropdownMenu.Item>
-          <Settings class="mr-2 size-4" />
-          <span>Settings</span>
-        </DropdownMenu.Item>
+        <DropdownMenu.GroupHeading>Administration</DropdownMenu.GroupHeading>
+        <DropdownMenu.Separator />
+        <DropdownMenu.Group>
+          <DropdownMenu.Item onSelect={() => goto("/admin")}>
+            <Settings class="mr-2 size-4" />
+            <span>Admin Settings</span>
+          </DropdownMenu.Item>
+        </DropdownMenu.Group>
       </DropdownMenu.Group>
-    </DropdownMenu.Group>
-    <DropdownMenu.Separator /> -->
+      <DropdownMenu.Separator />
+    {/if}
     <DropdownMenu.Group>
+      {#if user.role === "Admin"}
+        <DropdownMenu.GroupHeading>My Account</DropdownMenu.GroupHeading>
+        <DropdownMenu.Separator />
+      {/if}
       <DropdownMenu.Item onSelect={handleSignOut}>
         <LogOut class="mr-2 size-4" />
         <span>Sign out</span>

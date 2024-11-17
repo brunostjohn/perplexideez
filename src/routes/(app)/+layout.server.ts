@@ -7,13 +7,15 @@ export const load: LayoutServerLoad = async ({ locals: { auth } }) => {
     return redirect(307, "/auth");
   }
 
-  const { user: { name, email, image } = {} } = session;
+  // @ts-expect-error - cba to fix this for now as well
+  const { user: { name, email, image, role } = {} } = session;
 
   return {
     user: {
       name: name ?? undefined,
       email: email!,
       image: image ?? undefined,
+      role: (role as string | undefined | null) ?? undefined,
     },
   };
 };
