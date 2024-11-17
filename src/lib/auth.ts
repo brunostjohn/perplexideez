@@ -10,6 +10,7 @@ import { log } from "./log";
 import { encode as defaultEncode } from "@auth/core/jwt";
 import cuid from "cuid";
 import { building } from "$app/environment";
+import { skipCSRFCheck } from "@auth/core";
 
 if (!building && !env.RATE_LIMIT_SECRET) {
   log.error("RATE_LIMIT_SECRET is not set");
@@ -36,6 +37,8 @@ export const { handle, signIn, signOut } = SvelteKitAuth({
   adapter,
   trustHost: true,
   debug: log.level === "trace" || log.level === "debug",
+  useSecureCookies: (env.USE_SECURE_COOKIES ?? "true") === "true",
+  skipCSRFCheck: env.SKIP_CSRF_CHECK === "true" ? skipCSRFCheck : undefined,
   providers: [
     ...(hasOIDCEnvVariables
       ? [

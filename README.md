@@ -175,6 +175,8 @@ Due to a lack of control over these environments and high variance between them,
 | `LOG_LEVEL` | ❌ (default: `info`) | Which log level the app should use. | `trace`/`debug`/`info`/`warn`/`error` |
 | `LOG_MODE` | ❌ (default: `json`) | Whether to pretty print logs or use JSON logging. | `pretty`/`json` |
 | `METRICS_PORT` | ❌ (default: `9001`) | The port on which Prometheus metrics will be exposed. | `9001` |
+| `SKIP_CSRF_CHECK` | ❌ (default: `false`) | Makes the app skip CSRF checks. You most likely don't need this. Only set this if you know what you're doing. | `true`/`false` |
+| `USE_SECURE_COOKIES` | ❌ (default: `true`) | Make the app use secure cookies (only transferred over https). Only set this if you're not exposing your app. | `true`/`false` |
 
 <h4 id="deploying-env-sso"> SSO </h4>
 
