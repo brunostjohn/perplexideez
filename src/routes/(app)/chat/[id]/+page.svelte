@@ -73,6 +73,7 @@
                     id: aiMessage.id,
                     sources: aiMessage.sources,
                     suggestions: aiMessage.suggestions,
+                    aiModel: aiMessage.aiModel,
                   }
                 : undefined,
             }}

@@ -105,6 +105,7 @@ const createLLMStream = async (
       chatId: chat.id,
       role: Prisma.ChatRole.Assistant,
       pending: true,
+      aiModel: llm.model,
     },
   });
 

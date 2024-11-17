@@ -18,9 +18,10 @@
     source: string;
     usedSources?: Source[];
     isStreaming?: boolean;
+    aiModel?: string;
   }
 
-  const { source, usedSources, isStreaming }: Props = $props();
+  const { source, usedSources, isStreaming, aiModel }: Props = $props();
 
   const renderers = {
     heading: Heading,
@@ -58,7 +59,11 @@
 <MessageSectionTitle
   icon={MessageCircleQuestion}
   isLoading={isStreaming}
-  opacity={isStreaming || source.trim() !== "" ? 1 : 0}>Answer</MessageSectionTitle
+  opacity={isStreaming || source.trim() !== "" ? 1 : 0}>Answer
+  {#if aiModel}
+    <span class="text-xs text-gray-400 ml-2">({aiModel})</span>
+  {/if}
+  </MessageSectionTitle
 >
 <div class={cn("flex flex-col gap-2", isStreaming ? "pb-10" : "")}>
   {#key source}
