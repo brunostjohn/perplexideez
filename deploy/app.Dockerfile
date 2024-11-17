@@ -4,7 +4,7 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 COPY . /app
 WORKDIR /app
-RUN apt update && apt install -y openssl
+RUN apt update && apt install -y openssl curl
 RUN rm -rf node_modules
 RUN rm -rf .env*
 
